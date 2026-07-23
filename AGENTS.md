@@ -5,7 +5,7 @@
 
 ## Qué es este proyecto
 
-Portada/hub del ecosistema Nexo para usuarios finales **no técnicos**: qué hace cada tool, cómo se usa y acceso directo. La cara técnica del ecosistema (org de GitHub `nexo-tools`) también es alcance de este proyecto (Fase 2). Estado: **Fase 0 (planning), gate pendiente de sign-off**. Brief original: `nexotools.md` (Claude Cowork, 20/07/2026).
+Portada/hub del ecosistema Nexo para usuarios finales **no técnicos**: qué hace cada tool, cómo se usa y acceso directo. La cara técnica del ecosistema (org de GitHub `nexo-tools`) también es alcance de este proyecto (Fase 2). Estado: **v1 hub construido (2026-07-23)** — Laravel (clonado de la infra de nexoagenda/nexoevents: Sail sobre dev-environment compartido, Pest/Pint/Larastan L6, CSP + sync test, i18n es/en/pt + guardián, template `nexo-sso-client` off). El hub público lee `config/tools.php` (grid de tools con nombre/tagline/estado/link, badges activa/próximamente, link a la org GitHub, footer attribution). Andamiaje v2 presente (cuentas + SSO por env → "tus herramientas" en `DashboardController`). 48 tests verde (Pint+Larastan+audit+i18n). **Deferido:** "tus tools" real por uso; **app-switcher** del ecosistema replicado en cada tool; deploy (owner-gated). Brief original: `nexotools.md` (Claude Cowork, 20/07/2026). Detalle de la corrida: `~/alvaro/inbox/ecosystem-audit/`.
 
 ## Stack
 
