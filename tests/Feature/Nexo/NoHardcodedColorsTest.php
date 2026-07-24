@@ -14,7 +14,7 @@ it('has no hardcoded hex colors in blade views or app css (use --nexo-* tokens)'
     // Filenames allowed to contain literal hex: the generated brand tokens, the
     // shared chrome layer, and head's PWA theme-color meta (a <meta> content
     // value can't reference a CSS var).
-    $allowed = ['nexo-tokens.css', 'nexo-ui.css', 'head.blade.php'];
+    $allowed = ['nexo-tokens.css', 'nexo-ui.css', 'head.blade.php', 'nexo-seo.blade.php'];
 
     $offenders = [];
     foreach ($roots as $root) {

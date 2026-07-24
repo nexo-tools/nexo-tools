@@ -1,8 +1,10 @@
-@php($title = __('nexo.help.title'))
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
-        @include('partials.head')
+        @include('partials.head', ['seo' => true])
+        <x-nexo-seo
+            :title="__('nexo.help.title').' — '.config('app.name')"
+            :description="__('nexo.help.intro')" />
     </head>
     <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
         <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-surface focus:px-4 focus:py-2 focus:text-brand-700">

@@ -17,6 +17,36 @@ Route::get('/', HomeController::class)->name('home');
 // Help center (translatable FAQs). Public, no account needed.
 Route::get('/help', HelpController::class)->name('help');
 
+// SEO surface (discovery): robots.txt allows crawling the public hub + help and
+// disallows the private/account surface; sitemap.xml lists the indexable pages.
+Route::get('/sitemap.xml', function () {
+    $body = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+        .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+    foreach ([url('/'), route('help')] as $loc) {
+        $body .= '    <url><loc>'.e($loc).'</loc></url>'."\n";
+    }
+    $body .= '</urlset>'."\n";
+
+    return response($body, 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
+
+Route::get('/robots.txt', function () {
+    $lines = [
+        'User-agent: *',
+        'Disallow: /app',
+        'Disallow: /admin',
+        'Disallow: /login',
+        'Disallow: /register',
+        'Disallow: /forgot-password',
+        'Disallow: /reset-password',
+        'Disallow: /beacon',
+        '',
+        'Sitemap: '.route('sitemap'),
+    ];
+
+    return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain']);
+})->name('robots');
+
 // v2 scaffolding: accounts (+ Nexo ID SSO by env) for "your tools". Unused by v1.
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
