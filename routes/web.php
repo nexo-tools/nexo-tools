@@ -5,11 +5,15 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 // v1: public ecosystem hub, no account needed.
 Route::get('/', HomeController::class)->name('home');
+
+// Help center (translatable FAQs). Public, no account needed.
+Route::get('/help', HelpController::class)->name('help');
 
 // v2 scaffolding: accounts (+ Nexo ID SSO by env) for "your tools". Unused by v1.
 Route::middleware('guest')->group(function () {

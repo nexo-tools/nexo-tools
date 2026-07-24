@@ -8,7 +8,11 @@
             {{ __('Saltar al contenido') }}
         </a>
 
-        <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg" />
+        <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg">
+            <x-slot:nav>
+                <a href="{{ route('help') }}" class="nexo-btn nexo-btn--ghost">{{ __('nexo.help.title') }}</a>
+            </x-slot:nav>
+        </x-nexo-header>
 
         <main id="contenido" class="mx-auto w-full max-w-4xl flex-1 px-4 py-12">
             <header class="mb-10 text-center">
