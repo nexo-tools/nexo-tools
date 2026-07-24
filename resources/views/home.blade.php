@@ -16,6 +16,13 @@
             <x-slot:nav>
                 <a href="{{ route('help') }}" class="nexo-btn nexo-btn--ghost">{{ __('nexo.help.title') }}</a>
             </x-slot:nav>
+            <x-slot:actions>
+                @auth
+                    <a href="{{ route('dashboard') }}" class="nexo-btn nexo-btn--ghost">{{ __('Tus herramientas') }}</a>
+                @else
+                    <a href="{{ route('login') }}" class="nexo-btn nexo-btn--ghost">{{ __('Inicia sesión') }}</a>
+                @endauth
+            </x-slot:actions>
         </x-nexo-header>
 
         <main id="contenido" class="mx-auto w-full max-w-4xl flex-1 px-4 py-12">

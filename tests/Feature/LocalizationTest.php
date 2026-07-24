@@ -6,11 +6,13 @@ it('defaults to spanish on the hub', function () {
     $this->get('/')->assertSee('Todas las herramientas Nexo');
 });
 
-it('switches with the lang parameter and persists in the session', function () {
-    $this->get('/?lang=en')->assertSee('All the Nexo tools');
+it('switches with the lang parameter and persists in the shared nexo-lang cookie', function () {
+    $this->get('/?lang=en')
+        ->assertSee('All the Nexo tools')
+        ->assertPlainCookie('nexo-lang', 'en');
 
-    // Next request without the parameter keeps English.
-    $this->get('/')->assertSee('All the Nexo tools');
+    // A later request carrying the cookie keeps English (shared across tools).
+    $this->withUnencryptedCookie('nexo-lang', 'en')->get('/')->assertSee('All the Nexo tools');
 });
 
 it('ignores unsupported locales', function () {

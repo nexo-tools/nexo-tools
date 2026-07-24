@@ -23,6 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
             SecurityHeaders::class,
         ]);
 
+        // Shared preference cookies (theme + language) are scoped to the parent
+        // domain so they cross every ecosystem tool. Each tool has its own APP_KEY,
+        // so they must stay UNencrypted to be readable across tools.
+        $middleware->encryptCookies(except: ['nexo-lang', 'nexo-theme']);
+
         // Set TRUSTED_PROXIES in production (Cloudflare ranges, or '*' when the
         // origin is reachable ONLY through Cloudflare). Empty in local/dev.
         // Without it, the beacon per-IP rate-limit and VisitorHash collapse to
