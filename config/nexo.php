@@ -2,29 +2,15 @@
 
 return [
 
-    // Business categories shown in onboarding and the public directory.
-    'categories' => [
-        'peluqueria',
-        'barberia',
-        'estetica',
-        'spa',
-        'salud',
-        'consultorio',
-        'fitness',
-        'educacion',
-        'mascotas',
-        'otro',
+    // Powered-by attribution shown in the shared footer. Canonical ecosystem
+    // contract (same name/shape across every Nexo tool): NEXO_ATTRIBUTION_*.
+    'attribution' => [
+        'label' => env('NEXO_ATTRIBUTION_LABEL'),
+        'url' => env('NEXO_ATTRIBUTION_URL'),
     ],
 
-    // Slugs that can never be taken by a business (they collide with app routes).
-    'reserved_slugs' => [
-        'admin', 'api', 'app', 'auth', 'ayuda', 'blog', 'build', 'contacto', 'demo',
-        'docs', 'explorar', 'help', 'icons', 'login', 'logout', 'mail', 'nexo', 'og',
-        'password', 'privacidad', 'register', 'reservas', 'salir', 'sitemap',
-        'soporte', 'status', 't', 'terminos', 'turnos', 'www',
-    ],
-
-    'attribution_url' => env('NEXO_ATTRIBUTION_URL'),
-    'attribution_text' => env('NEXO_ATTRIBUTION_TEXT'),
+    // Help center contact target (mailto is used when no support URL is set).
+    'support_url' => env('NEXO_SUPPORT_URL'),
+    'support_email' => env('NEXO_SUPPORT_EMAIL', 'hola@alvarocdev.com'),
 
 ];

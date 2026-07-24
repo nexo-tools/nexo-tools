@@ -3,13 +3,13 @@
 
     <ul class="space-y-2">
         @foreach ($tools as $tool)
-            <li class="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
-                @if ($tool['status'] === 'active' && $tool['url'])
+            <li class="rounded-lg border border-line p-3">
+                @if ($tool['status'] === 'live' && $tool['url'])
                     <a href="{{ $tool['url'] }}" class="font-medium hover:underline">{{ $tool['name'] }}</a>
                 @else
-                    <span class="font-medium text-slate-500">{{ $tool['name'] }} · {{ __('Próximamente') }}</span>
+                    <span class="font-medium text-subtle">{{ $tool['name'] }} · {{ __('Próximamente') }}</span>
                 @endif
-                <span class="block text-xs text-slate-500">{{ $tool['tagline'] }}</span>
+                <span class="block text-xs text-subtle">{{ $tool['tagline'] }}</span>
             </li>
         @endforeach
     </ul>
