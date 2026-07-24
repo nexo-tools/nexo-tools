@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\App\SpringboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HomeController;
+use App\Http\Middleware\EnsureNexoAdmin;
 use Illuminate\Support\Facades\Route;
 
 // v1: public ecosystem hub, no account needed.
@@ -39,6 +41,12 @@ Route::middleware('auth')->group(function () {
     Route::get('app', [SpringboardController::class, 'index'])->name('dashboard');
     Route::post('app/tools', [SpringboardController::class, 'store'])->name('app.tools.store');
     Route::delete('app/tools/{tool}', [SpringboardController::class, 'destroy'])->name('app.tools.destroy');
+});
+
+// Ecosystem metrics — gated by the Nexo ID sub allowlist (nexo.admin_subs).
+// The gate 403s everyone else; with no admin_subs there is no admin surface.
+Route::middleware(EnsureNexoAdmin::class)->group(function () {
+    Route::get('admin', AdminDashboardController::class)->name('admin.dashboard');
 });
 
 // Nexo ID SSO client (no-op unless NEXO_SSO_ENABLED) — powers v2 "your tools".

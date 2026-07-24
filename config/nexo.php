@@ -27,6 +27,13 @@ return [
     'support_url' => env('NEXO_SUPPORT_URL'),
     'support_email' => env('NEXO_SUPPORT_EMAIL', 'hola@alvarocdev.com'),
 
+    // Who may reach /admin: a CSV of Nexo ID `sub`s. Empty (default) = nobody,
+    // so a standalone install has no admin surface at all. (AC-ADMIN-1)
+    'admin_subs' => array_values(array_filter(
+        array_map('trim', explode(',', (string) env('NEXO_ADMIN_SUBS', ''))),
+        fn (string $sub): bool => $sub !== '',
+    )),
+
     // Cookieless ecosystem analytics (opt-in). Off by default so the app runs
     // standalone: /beacon answers 204 but writes nothing. See AGENTS.md.
     'beacon' => [
