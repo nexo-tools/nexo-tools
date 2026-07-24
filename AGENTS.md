@@ -26,6 +26,16 @@ Aún no deployado. Destino: `nexotools.alvarocdev.com` (Hostinger shared, FTP ch
 - Cero jerga técnica en el contenido del hub; la única mención técnica es la sección "¿Eres developer?" → org de GitHub.
 - El hub no duplica las landings de las tools (anti-canibalización SEO, ADR-001).
 
+## Beacon (analítica cookieless del ecosistema, opt-in)
+
+El hub ingiere pageviews de las tools + alvarocdev vía `POST /beacon` (v2, M5). **Off por defecto** (`NEXO_BEACON_ENABLED=false`): sin él, `/beacon` responde 204 y no escribe — la app v1 sigue intacta.
+
+- **Privacidad**: cookieless, sin IP/UA/PII persistidos. Solo un `visitor_hash` anónimo diario (SHA-256 de app key + fecha + IP + UA — nada crudo, patrón canónico `VisitorHash` de nexolinks), `origin` (slug de tool), `path` truncado a 255, `day`, `country` (ISO-2 desde header de edge si existe) y `ref` (slug de tool que refirió, para atribución cross-tool en la vista alvarocdev). Respeta `DNT`/`Sec-GPC`. Nunca setea cookie.
+- **Allowlist**: solo acepta `origin`/`ref` ∈ claves de `config('nexo.beacon.origins')` (deriva de `nexo-ecosystem` + alvarocdev). CORS emite `Access-Control-Allow-Origin` solo a esos hosts; maneja preflight OPTIONS. Rate limit por IP (`NEXO_BEACON_RATE_LIMIT`, 60/min).
+- **Ruta fuera del grupo web** (sin sesión → sin `Set-Cookie`, sin CSRF): ver `routes/beacon.php` cableado en `bootstrap/app.php` (`then:`). Config en `config/nexo.php` (`nexo.beacon.*`).
+- **Emisor**: snippet `resources/js/nexo-beacon.js` (lee metas `nexo:beacon-*`, respeta `navigator.doNotTrack`, `sendBeacon` en pageload). Cableado en nexotools como referencia (`partials/beacon`, solo se renderiza con el beacon activo). Las demás tools/alvarocdev lo copian — ver `resources/js/nexo-beacon.js` (documentado como asset compartible de `nexo-ui`).
+- **/admin**: métricas agregadas de `beacon_events`, gated por `sub` ∈ `NEXO_ADMIN_SUBS` (vacío = sin superficie admin). Cookieless, sin requests externos.
+
 ## Decisiones importantes
 
 - **2026-07-19** — Fase 0 ejecutada con la skill `new-project`; ADRs 001–005 propuestos. Decisiones de Alvaro en consulta: subdominio `nexotools.alvarocdev.com`; org GitHub como fase de este proyecto; stack v1 estático patrón alvarocdev; switcher de ecosistema como plantilla copiable canónica en este repo. Ver `docs/adr/`.
