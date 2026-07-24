@@ -1,21 +1,67 @@
-<x-guest-layout>
-    <h1 class="mb-4 text-xl font-bold">{{ __('Tus herramientas') }}</h1>
+<x-app-layout>
+    <header class="mb-8">
+        <h1 class="text-2xl font-bold tracking-tight">{{ __('Tus herramientas') }}</h1>
+        <p class="mt-1 text-muted">{{ __('Lanzá cualquier herramienta Nexo desde acá.') }}</p>
+    </header>
 
-    <ul class="space-y-2">
-        @foreach ($tools as $tool)
-            <li class="rounded-lg border border-line p-3">
-                @if ($tool['status'] === 'live' && $tool['url'])
-                    <a href="{{ $tool['url'] }}" class="font-medium hover:underline">{{ $tool['name'] }}</a>
-                @else
-                    <span class="font-medium text-subtle">{{ $tool['name'] }} · {{ __('Próximamente') }}</span>
-                @endif
-                <span class="block text-xs text-subtle">{{ $tool['tagline'] }}</span>
-            </li>
-        @endforeach
-    </ul>
+    @if (count($added) === 0)
+        {{-- Empty state: invite to explore the registry. (AC-TOOLS-4) --}}
+        <section class="rounded-2xl border border-line bg-surface-raised p-8 text-center">
+            <p class="text-lg font-semibold">{{ __('Todavía no añadiste herramientas') }}</p>
+            <p class="mx-auto mt-2 max-w-md text-sm text-muted">{{ __('Explorá el ecosistema Nexo y añadí las que uses para tenerlas siempre a mano.') }}</p>
+        </section>
+    @else
+        {{-- Launch cards for the tools the user added. (AC-TOOLS-1) --}}
+        <section class="grid gap-4 sm:grid-cols-2">
+            @foreach ($added as $tool)
+                <div class="flex flex-col rounded-2xl border border-line bg-surface-raised p-5 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <img src="{{ $tool['mark'] }}" alt="" width="40" height="40" class="rounded-xl">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-lg font-semibold">{{ $tool['name'] }}</h2>
+                                @if (($tool['status'] ?? 'live') !== 'live')
+                                    <span class="nexo-badge-soon">{{ __('Próximamente') }}</span>
+                                @endif
+                            </div>
+                            <p class="mt-1 text-sm text-muted">{{ $tool['tagline'] }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-3">
+                        @if (($tool['status'] ?? 'live') === 'live' && $tool['url'])
+                            <a href="{{ $tool['url'] }}" class="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700">{{ __('Abrir') }}</a>
+                        @endif
+                        <form method="POST" action="{{ route('app.tools.destroy', $tool['key']) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-sm text-muted hover:underline">{{ __('Quitar') }}</button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        </section>
+    @endif
 
-    <form method="POST" action="{{ route('logout') }}" class="mt-6">
-        @csrf
-        <button type="submit" class="text-sm text-slate-500 hover:underline">{{ __('Cerrar sesión') }}</button>
-    </form>
-</x-guest-layout>
+    @if (count($available) > 0)
+        {{-- Add from the registry. (AC-TOOLS-2) --}}
+        <section class="mt-12">
+            <h2 class="mb-4 text-lg font-semibold">{{ __('Añadir herramientas') }}</h2>
+            <ul class="grid gap-3 sm:grid-cols-2">
+                @foreach ($available as $tool)
+                    <li class="flex items-center gap-3 rounded-xl border border-line bg-surface p-3">
+                        <img src="{{ $tool['mark'] }}" alt="" width="32" height="32" class="rounded-lg">
+                        <div class="min-w-0 flex-1">
+                            <p class="font-medium">{{ $tool['name'] }}</p>
+                            <p class="truncate text-xs text-muted">{{ $tool['tagline'] }}</p>
+                        </div>
+                        <form method="POST" action="{{ route('app.tools.store') }}">
+                            @csrf
+                            <input type="hidden" name="tool_key" value="{{ $tool['key'] }}">
+                            <button type="submit" class="nexo-btn nexo-btn--ghost">{{ __('Añadir') }}</button>
+                        </form>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+</x-app-layout>

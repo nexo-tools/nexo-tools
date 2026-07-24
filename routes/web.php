@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\App\SpringboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -34,7 +34,11 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    Route::get('app', DashboardController::class)->name('dashboard');
+
+    // "Your tools" springboard (v2 dashboard): launch + curate ecosystem tools.
+    Route::get('app', [SpringboardController::class, 'index'])->name('dashboard');
+    Route::post('app/tools', [SpringboardController::class, 'store'])->name('app.tools.store');
+    Route::delete('app/tools/{tool}', [SpringboardController::class, 'destroy'])->name('app.tools.destroy');
 });
 
 // Nexo ID SSO client (no-op unless NEXO_SSO_ENABLED) — powers v2 "your tools".
