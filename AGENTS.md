@@ -13,7 +13,22 @@ v1: sitio estático patrón alvarocdev — i18n de archivo único (es/en/pt), bu
 
 ## Cómo correrlo
 
-Aún no hay código (Fase 0). Los comandos se documentan aquí al cerrar el spike 1.1.
+Sin PHP/Composer local — todo por Docker/Sail. Desde 2026-07-26 los servicios
+con estado (MySQL, Mailpit, phpMyAdmin) vienen del entorno compartido
+(`~/dev-environment`, proyecto compose `nexo`): MySQL en puerto host **3307**
+(DB `nexo_tools`, usuario/clave `dev`/`dev`), Mailpit SMTP 1025 / UI 8025,
+phpMyAdmin 8306. El `compose.yaml` de este repo solo corre el runtime de la
+app (`APP_PORT=8080` / `VITE_PORT=5173` / `WWWUSER`/`WWWGROUP` fijados en `.env`).
+
+```bash
+cd ~/dev-environment && docker compose up -d mysql mailpit  # servicios compartidos
+docker run --rm -v "$PWD":/app -w /app composer:latest install
+docker compose up -d                                # app en http://localhost:8080
+docker compose exec laravel.test php artisan migrate
+npm install && npm run build
+# checks (como CI)
+docker run --rm -v "$PWD":/app -w /app composer:latest sh -c 'vendor/bin/pint --test && vendor/bin/phpstan analyse && vendor/bin/pest'
+```
 
 ## Producción
 
