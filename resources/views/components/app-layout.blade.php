@@ -12,7 +12,7 @@
 
         <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg">
             <x-slot:actions>
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ config('nexo-sso.enabled') ? route('nexo-sso.logout') : route('logout') }}">
                     @csrf
                     <button type="submit" class="nexo-btn nexo-btn--ghost">{{ __('Cerrar sesión') }}</button>
                 </form>
