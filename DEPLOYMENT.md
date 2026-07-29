@@ -1,6 +1,14 @@
 # Deployment — NexoTools (ecosystem hub) on shared hosting (LiteSpeed)
 
-NexoTools is a small Laravel 13 hub (mostly static content driven by `config/tools.php`) on Hostinger shared hosting, served from `nexotools.alvarocdev.com` via a symlink to `public/`. It uses **SQLite** (not MySQL) — a hub with no write-heavy features doesn't need a DB server; v2 ("your tools" behind Nexo ID) can move to MySQL if it ever needs to. Placeholders: `<domain>` (the hosting account's domain folder, e.g. `alvarocdev.com`).
+NexoTools is the Laravel 13 hub of the Nexo ecosystem on Hostinger shared hosting, served from `nexotools.alvarocdev.com` via a symlink to `public/`. The tool registry that drives the landing, the app-switcher and the beacon allowlist is `config/nexo-ecosystem.php`. Placeholders: `<domain>` (the hosting account's domain folder, e.g. `alvarocdev.com`).
+
+> **Database — read this before provisioning.** The v1 runbook below provisions **SQLite**, which
+> was right when the hub was read-only content. It is no longer: v2 added accounts, the *your
+> tools* springboard (`user_tools`) and the beacon receiver (`beacon_events`), all of which write
+> on every request. Local development runs on **MySQL** (the shared `nexo` stack). SQLite serialises
+> writes on a single file, so the beacon under concurrency is the wrong shape for it. **New
+> instances should provision MySQL**; the SQLite steps are kept because the running instance was
+> deployed with them and needs to be checked before it is migrated.
 
 Assumptions: SSH + Composer over SSH; **no Node on the server** — assets are built locally/CI and uploaded.
 

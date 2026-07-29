@@ -61,15 +61,18 @@ belong to the unrelated `work` stack. Anyone without that shared stack can use
 **Live at https://nexotools.alvarocdev.com** (Hostinger shared hosting, subdomain symlinked to
 `public/`). **Auto-deploy on every push to `main`** (`deploy.yml`, `concurrency: production`), so
 the suite must be green *before* pushing — the push publishes. Manual trigger:
-`gh workflow run deploy.yml --repo nexo-tools/nexo-tools`. The rsync step occasionally hits a
-transient SSH timeout against Hostinger; re-run with `gh run rerun <id> --failed`.
+`gh workflow run deploy.yml --repo nexo-tools/nexo-tools`. Hostinger's SSH drops connections when
+several repos deploy at once (the whole ecosystem shares one account), so the rsync and remote-script
+steps retry three times with backoff — three failures in a row mean something real.
 
 ## Project conventions
 
 - The project runs on the `planning-by-stages` skill: `docs/PLAN.md` (governing), `docs/adr/`
   (decisions), `docs/SCOPE.md`. One task at a time; commits `"N,M description"`.
-- **Docs in English** — the repo is public (this paid the debt ADR-002 registered). Communication
-  with Alvaro is in Spanish.
+- **Language**: this file and the README are in **English**, as a public repo requires. `docs/`
+  (PLAN, SCOPE, the ADRs) is still **Spanish**, written while the repo was private. The ADRs are
+  immutable decision records — translating them would rewrite the record — so they stay as they
+  are; **anything new under `docs/` is written in English**. Communication with Alvaro is Spanish.
 - No technical jargon in hub content; the single technical mention is the "developer?" link to the
   GitHub org.
 - The hub does not duplicate each tool's landing (anti-cannibalisation SEO, ADR-001).
@@ -125,7 +128,8 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
   with MySQL — accounts, the springboard and the beacon receiver all need one. The ADR records the
   reasoning of the day, not the current architecture.
 - **2026-07-19** — Dependency with nexoid registered on both sides:
-  `docs/adr/ADR-003-nexoid-boundary.md` here and `ADR-006-nexotools-hub-client.md` in `~/nexoid`.
+  `docs/adr/ADR-003-nexoid-boundary.md` here and `ADR-006-nexotools-hub-client.md` in
+  [nexo-id](https://github.com/nexo-tools/nexo-id).
   v1 does not depend on nexoid in any way.
 
 ## Accumulated context
