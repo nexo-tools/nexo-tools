@@ -19,7 +19,7 @@ return [
     // Powered-by attribution shown in the shared footer. Canonical ecosystem
     // contract (same name/shape across every Nexo tool): NEXO_ATTRIBUTION_*.
     'attribution' => [
-        'label' => env('NEXO_ATTRIBUTION_LABEL'),
+        'label' => env('NEXO_ATTRIBUTION_LABEL', 'made with Nexo Tools'),
         'url' => env('NEXO_ATTRIBUTION_URL'),
     ],
 
