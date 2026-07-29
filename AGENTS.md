@@ -1,69 +1,142 @@
-# NexoTools
+# Nexo Tools
 
-> Punto de entrada para cualquier IA/agente que trabaje en este proyecto. Sigue el sistema de estándares de Alvaro (repo `alvaro`, alvarocdev.com). Mantén este archivo actualizado: persiste aquí el contexto importante que surja en las sesiones de trabajo.
-> Si el repo es público, este archivo también lo es: nada de secretos, credenciales ni infra sensible aquí.
+> Entry point for any AI/agent working on this project. It follows Alvaro's standards system (repo `alvaro`, alvarocdev.com). Keep this file updated: persist here the important context that comes up during work sessions.
+> This repo is **public**: no secrets, credentials or sensitive infrastructure details here.
 
-## Qué es este proyecto
+## What this project is
 
-Portada/hub del ecosistema Nexo para usuarios finales **no técnicos**: qué hace cada tool, cómo se usa y acceso directo. La cara técnica del ecosistema (org de GitHub `nexo-tools`) también es alcance de este proyecto (Fase 2). Estado: **v1 hub construido (2026-07-23)** — Laravel (clonado de la infra de nexoagenda/nexoevents: Sail sobre dev-environment compartido, Pest/Pint/Larastan L6, CSP + sync test, i18n es/en/pt + guardián, template `nexo-sso-client` off). El hub público lee `config/tools.php` (grid de tools con nombre/tagline/estado/link, badges activa/próximamente, link a la org GitHub, footer attribution). Andamiaje v2 presente (cuentas + SSO por env → "tus herramientas" en `DashboardController`). 48 tests verde (Pint+Larastan+audit+i18n). **Deferido:** "tus tools" real por uso; **app-switcher** del ecosistema replicado en cada tool; deploy (owner-gated). Brief original: `nexotools.md` (Claude Cowork, 20/07/2026). Detalle de la corrida: `~/alvaro/inbox/ecosystem-audit/`.
+The hub of the Nexo ecosystem, written for **non-technical** visitors: what each tool does, how to
+use it, and a direct way in. It also carries the ecosystem's shared identity — it is the **living
+reference** of the Nexo brand and chrome (header, app-switcher, footer, tokens, `/help`) that the
+sibling tools copy.
+
+**Current state: LIVE at https://nexotools.alvarocdev.com.** Both layers are built and deployed:
+
+- **v1 — the public hub**: landing with the tool grid, `/help`, i18n es/en/pt, legal pages.
+- **v2 — the account layer**: optional Nexo ID SSO, the personal *"your tools"* springboard
+  (`user_tools`), the cookieless beacon receiver and the `/admin` metrics dashboard.
+
+The tool registry behind the landing, the app-switcher and the beacon allowlist is
+`config/nexo-ecosystem.php` — the same block copied across the six tools.
 
 ## Stack
 
-v1: sitio estático patrón alvarocdev — i18n de archivo único (es/en/pt), build a `dist/`, deploy GitHub Actions + FTP al shared host de Hostinger, subdominio `nexotools.alvarocdev.com`. Sin backend, sin base de datos (ADR-002). Detalle fino se fija en el spike 1.1.
+Laravel 13 · PHP 8.3+ · Blade + Alpine.js + Tailwind CSS (Vite) · MySQL (SQLite in tests).
+Zero external runtime requests: system fonts, inline SVG, no CDNs.
+Quality gate: Pint + Larastan (level 6) + `composer audit` + translations `--check` + Pest.
 
-## Cómo correrlo
+## How to run it
 
-Sin PHP/Composer local — todo por Docker/Sail. Desde 2026-07-26 los servicios
-con estado (MySQL, Mailpit, phpMyAdmin) vienen del entorno compartido
-(`~/dev-environment`, proyecto compose `nexo`): MySQL en puerto host **3307**
-(DB `nexo_tools`, usuario/clave `dev`/`dev`), Mailpit SMTP 1025 / UI 8025,
-phpMyAdmin 8306. El `compose.yaml` de este repo solo corre el runtime de la
-app (`APP_PORT=8080` / `VITE_PORT=5173` / `WWWUSER`/`WWWGROUP` fijados en `.env`).
+No local PHP/Composer — everything through Docker. Stateful services (MySQL, Mailpit, phpMyAdmin)
+are **not** in this repo's `compose.yaml`: they run once for the whole ecosystem in the shared dev
+environment (`~/dev-environment`, compose project `nexo`) and this app reaches them over
+`host.docker.internal`.
 
 ```bash
-cd ~/dev-environment && docker compose up -d mysql mailpit  # servicios compartidos
+cd ~/dev-environment && docker compose up -d mysql mailpit   # shared, once per session
+cd ~/nexotools
 docker run --rm -v "$PWD":/app -w /app composer:latest install
-docker compose up -d                                # app en http://localhost:8080
+docker compose up -d                                          # app on http://localhost:8080
 docker compose exec laravel.test php artisan migrate
 npm install && npm run build
-# checks (como CI)
-docker run --rm -v "$PWD":/app -w /app composer:latest sh -c 'vendor/bin/pint --test && vendor/bin/phpstan analyse && vendor/bin/pest'
+
+# the CI gate
+docker run --rm -v "$PWD":/app -w /app composer:latest \
+  sh -c 'vendor/bin/pint --test && vendor/bin/phpstan analyse && vendor/bin/pest'
 ```
 
-## Producción
+| What | Where |
+|---|---|
+| App | http://localhost:8080 (`APP_PORT`) |
+| Vite | port 5173 (`VITE_PORT`) |
+| MySQL | `host.docker.internal:3307`, db `nexo_tools` |
+| Mailpit | SMTP 1025 · UI http://localhost:8025 |
 
-Aún no deployado. Destino: `nexotools.alvarocdev.com` (Hostinger shared, FTP chrooteado, regla no-clean-slate).
+Ports are fixed per tool (map in `alvaro/templates/dev-environment/README.md`); 3306 and 8081
+belong to the unrelated `work` stack. Anyone without that shared stack can use
+`compose.selfhost.yaml`, which adds MySQL and Mailpit — see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-## Convenciones del proyecto
+## Production
 
-- El proyecto se ejecuta con la skill `planning-by-stages`: ver `docs/PLAN.md` (rector), `docs/adr/` (decisiones), `docs/SCOPE.md`. Una tarea a la vez; commits `"N,M descripción"`.
-- Repo **privado** por ahora → docs en español; si se publica (decisión de Alvaro + `audit-open-source`), migrar docs a inglés (deuda registrada en ADR-002).
-- Cero jerga técnica en el contenido del hub; la única mención técnica es la sección "¿Eres developer?" → org de GitHub.
-- El hub no duplica las landings de las tools (anti-canibalización SEO, ADR-001).
+**Live at https://nexotools.alvarocdev.com** (Hostinger shared hosting, subdomain symlinked to
+`public/`). **Auto-deploy on every push to `main`** (`deploy.yml`, `concurrency: production`), so
+the suite must be green *before* pushing — the push publishes. Manual trigger:
+`gh workflow run deploy.yml --repo nexo-tools/nexo-tools`. The rsync step occasionally hits a
+transient SSH timeout against Hostinger; re-run with `gh run rerun <id> --failed`.
 
-## Páginas estáticas (estándar nexo-ui)
+## Project conventions
 
-- **Errores** 403/404/419/429/500/503 en `resources/views/errors/`, todas sobre el componente `error-layout` (chrome + tema + i18n). Agregar un código es una línea.
-- **Legales**: `/privacidad` y `/terminos` (nombres de ruta `legal.privacy` / `legal.terms`) → `LegalController` + `resources/views/legal/show.blade.php`. El texto vive en `lang/{es,en,pt}/legal.php` porque son párrafos, no strings sueltos: **español es la fuente**, en/pt son traducciones de ese archivo. Linkeadas desde el `nexo-footer` (o sea, desde toda página, error pages incluidas) y presentes en el `sitemap.xml`.
-- El contenido describe lo que el código hace de verdad (cuentas, panel "tus herramientas", SSO opcional, beacon cookieless). Si cambia lo que se guarda, se actualiza el texto en los 3 idiomas.
-- **Responsable y contacto de la instancia**: `NEXO_LEGAL_OPERATOR` / `NEXO_LEGAL_CONTACT` (config `nexo.legal.*`). Sin valores no se renderiza esa sección, para que un clon no publique los datos del autor upstream. **Faltan de setear en producción antes de lanzar.**
-- Guardianes: `tests/Feature/Nexo/StaticPagesTest.php` (errores + legales + i18n + sin `[COMPLETAR]`), `BrandAssetsPresentTest.php`, `DarkModeCoverageTest.php`.
+- The project runs on the `planning-by-stages` skill: `docs/PLAN.md` (governing), `docs/adr/`
+  (decisions), `docs/SCOPE.md`. One task at a time; commits `"N,M description"`.
+- **Docs in English** — the repo is public (this paid the debt ADR-002 registered). Communication
+  with Alvaro is in Spanish.
+- No technical jargon in hub content; the single technical mention is the "developer?" link to the
+  GitHub org.
+- The hub does not duplicate each tool's landing (anti-cannibalisation SEO, ADR-001).
+- Attribution defaults to the **product** (`made with Nexo Tools` → the GitHub org), never to
+  alvarocdev.com: a third-party instance must not advertise the upstream author
+  (`add-branding-footer`). Alvaro's instances set `NEXO_ATTRIBUTION_*` in their own `.env`.
 
-## Beacon (analítica cookieless del ecosistema, opt-in)
+## Static pages (nexo-ui standard)
 
-El hub ingiere pageviews de las tools + alvarocdev vía `POST /beacon` (v2, M5). **Off por defecto** (`NEXO_BEACON_ENABLED=false`): sin él, `/beacon` responde 204 y no escribe — la app v1 sigue intacta.
+- **Errors** 403/404/419/429/500/503 in `resources/views/errors/`, all on the `error-layout`
+  component (chrome + theme + i18n). Adding a code is one line.
+- **Legal**: `/privacidad` and `/terminos` (route names `legal.privacy` / `legal.terms`) →
+  `LegalController` + `resources/views/legal/show.blade.php`. The text lives in
+  `lang/{es,en,pt}/legal.php` because these are paragraphs, not loose strings: **Spanish is the
+  source**, en/pt are translations of it. Linked from the `nexo-footer` (so from every page,
+  error pages included) and present in `sitemap.xml`.
+- The content describes what the code actually does (accounts, the *your tools* panel, optional
+  SSO, the cookieless beacon). If what gets stored changes, the text changes in all three
+  languages.
+- **Instance operator and contact**: `NEXO_LEGAL_OPERATOR` / `NEXO_LEGAL_CONTACT` (config
+  `nexo.legal.*`). With no values that section is not rendered, so a clone never publishes the
+  upstream author's details. **Still to be set in this instance's production `.env`.**
+- Guardians: `tests/Feature/Nexo/StaticPagesTest.php`, `BrandAssetsPresentTest.php`,
+  `DarkModeCoverageTest.php`.
 
-- **Privacidad**: cookieless, sin IP/UA/PII persistidos. Solo un `visitor_hash` anónimo diario (SHA-256 de app key + fecha + IP + UA — nada crudo, patrón canónico `VisitorHash` de nexolinks), `origin` (slug de tool), `path` truncado a 255, `day`, `country` (ISO-2 desde header de edge si existe) y `ref` (slug de tool que refirió, para atribución cross-tool en la vista alvarocdev). Respeta `DNT`/`Sec-GPC`. Nunca setea cookie.
-- **Allowlist**: solo acepta `origin`/`ref` ∈ claves de `config('nexo.beacon.origins')` (deriva de `nexo-ecosystem` + alvarocdev). CORS emite `Access-Control-Allow-Origin` solo a esos hosts; maneja preflight OPTIONS. Rate limit por IP (`NEXO_BEACON_RATE_LIMIT`, 60/min).
-- **Ruta fuera del grupo web** (sin sesión → sin `Set-Cookie`, sin CSRF): ver `routes/beacon.php` cableado en `bootstrap/app.php` (`then:`). Config en `config/nexo.php` (`nexo.beacon.*`).
-- **Emisor**: snippet `resources/js/nexo-beacon.js` (lee metas `nexo:beacon-*`, respeta `navigator.doNotTrack`, `sendBeacon` en pageload). Cableado en nexotools como referencia (`partials/beacon`, solo se renderiza con el beacon activo). Las demás tools/alvarocdev lo copian — ver `resources/js/nexo-beacon.js` (documentado como asset compartible de `nexo-ui`).
-- **/admin**: métricas agregadas de `beacon_events`, gated por `sub` ∈ `NEXO_ADMIN_SUBS` (vacío = sin superficie admin). Cookieless, sin requests externos.
+## Beacon (cookieless ecosystem analytics, opt-in)
 
-## Decisiones importantes
+The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Off by default**
+(`NEXO_BEACON_ENABLED=false`): without it `/beacon` answers 204 and writes nothing.
 
-- **2026-07-19** — Fase 0 ejecutada con la skill `new-project`; ADRs 001–005 propuestos. Decisiones de Alvaro en consulta: subdominio `nexotools.alvarocdev.com`; org GitHub como fase de este proyecto; stack v1 estático patrón alvarocdev; switcher de ecosistema como plantilla copiable canónica en este repo. Ver `docs/adr/`.
-- **2026-07-19** — Dependencia con nexoid registrada en ambos lados: `docs/adr/ADR-003-nexoid-boundary.md` aquí y `ADR-006-nexotools-hub-client.md` en `~/nexoid` (propuesto, pendiente de sign-off allá). La v1 no depende de nexoid bajo ningún concepto.
+- **Privacy**: cookieless, no IP/UA/PII persisted. Only a daily anonymous `visitor_hash` (SHA-256
+  of app key + date + IP + UA — nothing raw, the canonical `VisitorHash` pattern from nexolinks),
+  `origin` (tool slug), `path` truncated to 255, `day`, `country` (ISO-2 from an edge header if
+  present) and `ref` (referring tool slug, for cross-tool attribution). Honours `DNT`/`Sec-GPC`.
+  Never sets a cookie.
+- **Allowlist**: only accepts `origin`/`ref` ∈ keys of `config('nexo.beacon.origins')` (derived
+  from `nexo-ecosystem` + alvarocdev). CORS answers only those hosts and handles the OPTIONS
+  preflight. Per-IP rate limit (`NEXO_BEACON_RATE_LIMIT`, 60/min).
+- **Route outside the `web` group** (no session → no `Set-Cookie`, no CSRF): `routes/beacon.php`,
+  wired in `bootstrap/app.php` (`then:`). Config in `config/nexo.php` (`nexo.beacon.*`).
+- **Emitter**: `resources/js/nexo-beacon.js` (reads `nexo:beacon-*` metas, honours
+  `navigator.doNotTrack`, `sendBeacon` on pageload). Wired here as the reference
+  (`partials/beacon`, rendered only when the beacon is on); the other tools and alvarocdev copy it.
+- **/admin**: aggregated metrics from `beacon_events`, gated by `sub` ∈ `NEXO_ADMIN_SUBS` (empty =
+  no admin surface at all).
 
-## Contexto acumulado
+## Key decisions
 
-- **2026-07-19** — La org de GitHub `nexo-tools` (display "NexoTools") ya existe pero está vacía de contenido; su llenado y los transfers de nexolinks/nexoagenda son la Fase 2. Dominio propio descartado por ahora (nexo.tools no disponible); compra defensiva en backlog. El plan de nexoid vive en `~/nexoid` (Fase 0 firmada 2026-07-19).
+- **2026-07-19** — Phase 0 executed with the `new-project` skill; ADRs 001–005. Alvaro's calls:
+  subdomain `nexotools.alvarocdev.com`; the GitHub org is a phase of this project; the ecosystem
+  switcher lives here as the canonical copyable template.
+  **Superseded:** ADR-002 chose a static site with no backend for v1. The hub is a full Laravel app
+  with MySQL — accounts, the springboard and the beacon receiver all need one. The ADR records the
+  reasoning of the day, not the current architecture.
+- **2026-07-19** — Dependency with nexoid registered on both sides:
+  `docs/adr/ADR-003-nexoid-boundary.md` here and `ADR-006-nexotools-hub-client.md` in `~/nexoid`.
+  v1 does not depend on nexoid in any way.
+
+## Accumulated context
+
+- **2026-07-28** — **Ecosystem normalization run** (`alvaro/inbox/ecosystem-normalization/`). This
+  file was the worst offender in the ecosystem: it was in Spanish claiming the repo was private,
+  said production was "not deployed yet" with the site live, described the stack as a static site
+  with no database, pointed at a `config/tools.php` that no longer exists, and called the
+  app-switcher deferred when it has a guardian. All corrected here. Also landed: legal pages, the
+  three new guardians, `composer audit` in CI, the neutral attribution default, and a README
+  rewritten as the product's visual face with the operational detail moved to DEPLOYMENT.md.
+- **2026-07-19** — The GitHub org `nexo-tools` exists; filling it and transferring the sibling
+  repos was Phase 2 and is **done** — all six product repos live there. A dedicated domain was
+  discarded for now (`nexo.tools` unavailable).
