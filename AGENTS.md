@@ -41,6 +41,14 @@ Aún no deployado. Destino: `nexotools.alvarocdev.com` (Hostinger shared, FTP ch
 - Cero jerga técnica en el contenido del hub; la única mención técnica es la sección "¿Eres developer?" → org de GitHub.
 - El hub no duplica las landings de las tools (anti-canibalización SEO, ADR-001).
 
+## Páginas estáticas (estándar nexo-ui)
+
+- **Errores** 403/404/419/429/500/503 en `resources/views/errors/`, todas sobre el componente `error-layout` (chrome + tema + i18n). Agregar un código es una línea.
+- **Legales**: `/privacidad` y `/terminos` (nombres de ruta `legal.privacy` / `legal.terms`) → `LegalController` + `resources/views/legal/show.blade.php`. El texto vive en `lang/{es,en,pt}/legal.php` porque son párrafos, no strings sueltos: **español es la fuente**, en/pt son traducciones de ese archivo. Linkeadas desde el `nexo-footer` (o sea, desde toda página, error pages incluidas) y presentes en el `sitemap.xml`.
+- El contenido describe lo que el código hace de verdad (cuentas, panel "tus herramientas", SSO opcional, beacon cookieless). Si cambia lo que se guarda, se actualiza el texto en los 3 idiomas.
+- **Responsable y contacto de la instancia**: `NEXO_LEGAL_OPERATOR` / `NEXO_LEGAL_CONTACT` (config `nexo.legal.*`). Sin valores no se renderiza esa sección, para que un clon no publique los datos del autor upstream. **Faltan de setear en producción antes de lanzar.**
+- Guardianes: `tests/Feature/Nexo/StaticPagesTest.php` (errores + legales + i18n + sin `[COMPLETAR]`), `BrandAssetsPresentTest.php`, `DarkModeCoverageTest.php`.
+
 ## Beacon (analítica cookieless del ecosistema, opt-in)
 
 El hub ingiere pageviews de las tools + alvarocdev vía `POST /beacon` (v2, M5). **Off por defecto** (`NEXO_BEACON_ENABLED=false`): sin él, `/beacon` responde 204 y no escribe — la app v1 sigue intacta.

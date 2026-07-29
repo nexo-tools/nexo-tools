@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LegalController;
 use App\Http\Middleware\EnsureNexoAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -17,12 +18,20 @@ Route::get('/', HomeController::class)->name('home');
 // Help center (translatable FAQs). Public, no account needed.
 Route::get('/help', HelpController::class)->name('help');
 
+// Legal pages. The hub holds accounts, the "your tools" panel and the beacon
+// table, so it has to say what it stores. Paths are Spanish (the ecosystem is
+// Spanish-first); the route NAMES are the ecosystem-wide contract the footer,
+// the sitemap and StaticPagesTest reference. Outside every auth group: they must
+// be readable while logged out and indexable.
+Route::get('/privacidad', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/terminos', [LegalController::class, 'terms'])->name('legal.terms');
+
 // SEO surface (discovery): robots.txt allows crawling the public hub + help and
 // disallows the private/account surface; sitemap.xml lists the indexable pages.
 Route::get('/sitemap.xml', function () {
     $body = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
         .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
-    foreach ([url('/'), route('help')] as $loc) {
+    foreach ([url('/'), route('help'), route('legal.privacy'), route('legal.terms')] as $loc) {
         $body .= '    <url><loc>'.e($loc).'</loc></url>'."\n";
     }
     $body .= '</urlset>'."\n";

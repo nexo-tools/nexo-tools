@@ -62,7 +62,10 @@ it('serves a valid sitemap.xml listing the public pages', function () {
     expect($response->getContent())
         ->toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
         ->toContain('<loc>'.url('/').'</loc>')
-        ->toContain('<loc>'.route('help').'</loc>');
+        ->toContain('<loc>'.route('help').'</loc>')
+        // The standard requires the legal pages to be indexable, not just linked.
+        ->toContain('<loc>'.route('legal.privacy').'</loc>')
+        ->toContain('<loc>'.route('legal.terms').'</loc>');
 
     expect(simplexml_load_string($response->getContent()))->not->toBeFalse();
 });

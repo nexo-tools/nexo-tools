@@ -27,6 +27,14 @@ return [
     'support_url' => env('NEXO_SUPPORT_URL'),
     'support_email' => env('NEXO_SUPPORT_EMAIL', 'hola@alvarocdev.com'),
 
+    // Who answers for THIS instance on the legal pages. No default on purpose:
+    // a third party that clones the repo must not publish the upstream author's
+    // details, so the section is simply not rendered until it is filled in.
+    'legal' => [
+        'operator' => env('NEXO_LEGAL_OPERATOR'),
+        'contact' => env('NEXO_LEGAL_CONTACT'),
+    ],
+
     // Who may reach /admin: a CSV of Nexo ID `sub`s. Empty (default) = nobody,
     // so a standalone install has no admin surface at all. (AC-ADMIN-1)
     'admin_subs' => array_values(array_filter(
