@@ -4,7 +4,26 @@
 >
 > Por la regla just-in-time, solo la fase actual está desglosada en tareas. Las fases posteriores listan objetivo, trabajo clave y criterios de gate; sus tareas se derivan de los ACs de su SPEC al abrir la fase.
 
-## Fase 0 — Planning y fundaciones (actual)
+## Estado (2026-07-28)
+
+**Las fases 0–4 están ejecutadas y el hub está en producción.** Este plan se escribió el
+2026-07-19 y quedó congelado en la Fase 0 mientras la ejecución seguía por otro carril: la corrida
+de auditoría del ecosistema (`~/alvaro/inbox/ecosystem-audit/`) y después el plan de marca
+(`~/alvaro/inbox/brand-unification/`, fases M0–M7), donde este repo fue la **referencia viva** del
+estándar Nexo. Los checkboxes de abajo reflejan lo que se decidió y ejecutó, con la salvedad de
+que el detalle fino de M0–M7 vive en esos checkpoints, no acá.
+
+Estado real hoy: v1 (hub público) y v2 (cuentas + SSO + springboard + beacon + `/admin`)
+construidos y desplegados en https://nexotools.alvarocdev.com, con auto-deploy en cada push,
+páginas legales, error pages, i18n es/en/pt y los guardianes del estándar. Lo que sigue no es una
+fase de este plan sino trabajo de producto puntual; cuando haya una tanda grande, se abre una fase
+nueva acá.
+
+**Desviación registrada:** ADR-002 eligió un sitio estático sin backend para la v1. No se cumplió
+—el hub es una app Laravel con MySQL— porque las cuentas, el springboard y el receptor del beacon
+la necesitan. El ADR queda como registro del razonamiento de ese día, no de la arquitectura actual.
+
+## Fase 0 — Planning y fundaciones ✅
 
 **Objetivo:** decisiones tomadas y registradas, alcance fijado, proyecto formalizado. Cero código de producto.
 
@@ -13,14 +32,14 @@
 - [x] 0.3 ADRs fundacionales 001–005 (superficies/audiencias, stack v1, frontera nexoid, switcher de ecosistema, alcance org GitHub), estado Propuesto; ADR-006 propuesto en el lado de nexoid (registro bilateral).
 - [x] 0.4 `docs/PLAN.md` (este archivo) con fases y gates.
 - [x] 0.5 Formalización: `AGENTS.md` (ES), `CLAUDE.md` → AGENTS + briefing de estándares (repo privado), `README.md` con línea Status, `.gitignore`, git init (sin commits — quedan para después del sign-off).
-- [ ] 0.6 Presentar plan + decisiones a Alvaro; resolver abiertas; estampar sign-off.
+- [x] 0.6 Presentar plan + decisiones a Alvaro; resolver abiertas; estampar sign-off. — hecho 2026-07-19 (las decisiones de esa consulta están en ADR-001..005 y en AGENTS.md).
 
-**Gate 0 (requiere sign-off del owner):**
-- [ ] ADRs 001–005 revisados y aceptados/enmendados; ADR-006 de nexoid aceptado en su repo.
-- [ ] Decisiones ya tomadas en consulta (2026-07-19) confirmadas: subdominio `nexotools.alvarocdev.com`; org GitHub como Fase 2 de este proyecto; stack v1 estático patrón alvarocdev; switcher como plantilla copiable canónica aquí.
-- [ ] Abiertas a resolver: nombre del repo en la org (propuesta: `nexo-tools/nexotools`); compra defensiva de dominio (backlog, sin apuro); autorización de commit inicial + creación del repo privado en la org.
-- [ ] SCOPE MVP dentro/fuera aprobado.
-- [ ] Sign-off: _pendiente_.
+**Gate 0 — cerrado 2026-07-19 (sign-off de Alvaro en la consulta de planning):**
+- [x] ADRs 001–005 revisados y aceptados/enmendados; ADR-006 de nexoid aceptado en su repo.
+- [x] Decisiones ya tomadas en consulta (2026-07-19) confirmadas: subdominio `nexotools.alvarocdev.com`; org GitHub como Fase 2 de este proyecto; stack v1 estático patrón alvarocdev; switcher como plantilla copiable canónica aquí.
+- [x] Abiertas resueltas: el repo en la org quedó como `nexo-tools/nexo-tools` (slug con guion, como los hermanos); compra defensiva de dominio → backlog; repo creado y hoy **público**.
+- [x] SCOPE MVP dentro/fuera aprobado.
+- [x] Sign-off: Alvaro, 2026-07-19.
 
 ## Fase 1 — v1: escaparate estático en producción
 
