@@ -23,28 +23,40 @@ it('renders the app-switcher with every tool and the hub invite', function () {
         ->and($html)->toContain(config('nexo-ecosystem.github_org_url'));
 });
 
-it('renders the powered-by attribution from config', function () {
-    config()->set('nexo.attribution.label', 'example.test');
+it('renders the attribution label verbatim, with nothing prepended', function () {
+    // The label IS the whole phrase. A tool that prepends its own
+    // __('nexo.footer.powered_by') ships "Made by powered by example.test".
+    // The old assertion used a bare domain, which reads fine either way and
+    // hid exactly that bug in production for months — so assert the rendered
+    // anchor text, not just that the label appears somewhere.
+    config()->set('nexo.attribution.label', 'powered by example.test');
     config()->set('nexo.attribution.url', 'https://example.test');
 
     // Rendered as a component so its ComponentAttributeBag ($attributes) is bound.
     $html = Blade::render('<x-nexo-footer />');
 
-    expect($html)->toContain('example.test')
-        ->and($html)->toContain('https://example.test');
+    expect($html)->toContain('https://example.test');
+    expect(preg_match('/<a[^>]*href="https:\/\/example\.test"[^>]*>\s*powered by example\.test\s*<\/a>/', $html))
+        ->toBe(1, 'The attribution anchor must contain exactly the label.');
+
+    // Belt and braces: no tool may reintroduce a prefix key.
+    foreach (['Hecho por', 'Made by', 'Feito por'] as $prefix) {
+        expect(str_contains($html, $prefix))
+            ->toBeFalse("The footer prepends \"{$prefix}\" to the attribution label.");
+    }
 });
 
 it('falls back to the product label, never the upstream author, when unset', function () {
     // A third-party instance that sets no attribution must not end up
-    // advertising alvarocdev.com (add-branding-footer: open-source
-    // multi-instance products carry a neutral product default).
-    // Both explicitly, so the assertion does not depend on whoever runs it
-    // having (or not having) NEXO_ATTRIBUTION_* in their local .env.
+    // advertising the upstream author's site (add-branding-footer: open-source
+    // multi-instance products carry a neutral product default). Both keys are
+    // nulled explicitly so the assertion does not depend on whoever runs it
+    // having NEXO_ATTRIBUTION_* in their local .env.
     config()->set('nexo.attribution.label', null);
     config()->set('nexo.attribution.url', null);
 
     $html = Blade::render('<x-nexo-footer />');
 
-    expect($html)->toContain('made with Nexo Tools');
-    expect($html)->not->toContain('href="https://alvarocdev.com"');
+    expect(str_contains($html, 'made with Nexo Tools'))->toBeTrue('The footer does not credit the product.');
+    expect(str_contains($html, 'href="https://alvarocdev.com"'))->toBeFalse('The footer is advertising the upstream author.');
 });

@@ -27,7 +27,14 @@ it('serves meta description, canonical, open graph, theme-color and hreflang on 
 
     // Exactly one <title> (the layout title is suppressed when the SEO component owns it).
     expect(substr_count($html, '<title>'))->toBe(1);
-    expect(substr_count($html, 'name="theme-color"'))->toBe(1);
+
+    // Two theme-color metas and no more: one per color scheme, both media-scoped.
+    // A bare third one would win unconditionally and repaint the mobile browser
+    // bar violet over a dark page.
+    expect(substr_count($html, 'name="theme-color"'))->toBe(2);
+    expect($html)
+        ->toContain('<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">')
+        ->toContain('<meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)">');
 });
 
 it('renders SEO on the help page too', function () {

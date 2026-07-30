@@ -12,8 +12,11 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+{{-- Same pair as <x-nexo-seo>: the browser chrome follows the page background
+     per scheme. Literals because a <meta> content value can't read a CSS var. --}}
 @unless ($seo ?? false)
-    <meta name="theme-color" content="#7c3aed">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)">
 @endunless
 
 @include('partials.theme-init')
