@@ -8,9 +8,10 @@
         <p class="mb-4 rounded-lg bg-brand-100 px-4 py-3 text-sm text-brand-900" role="status">{{ session('status') }}</p>
     @endif
 
-    <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
+    <form method="POST" action="{{ route('password.email') }}" class="space-y-4"
+          x-data="{ sending: false }" @submit="$nextTick(() => sending = true)">
         @csrf
         <x-field :label="__('Email')" name="email" type="email" required autocomplete="username" />
-        <x-button>{{ __('Enviar enlace') }}</x-button>
+        <x-button ::disabled="sending" ::aria-busy="sending">{{ __('Enviar enlace') }}</x-button>
     </form>
 </x-guest-layout>

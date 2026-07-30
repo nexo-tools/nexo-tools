@@ -21,7 +21,7 @@ it('links live tools and badges upcoming ones, straight from the registry', func
     // Dynamic guardian: a new tool enters the registry as 'soon' (badge shown)
     // and flips to 'live' at launch — this test follows the registry instead
     // of hardcoding either state.
-    $response = $this->get('/')->assertSee(__('Usar'));
+    $response = $this->get('/')->assertSee(__('Abrir'));
 
     collect(config('nexo-ecosystem.tools'))
         ->except('nexotools')

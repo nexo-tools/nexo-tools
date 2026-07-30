@@ -5,7 +5,8 @@
         <p class="mb-4 rounded-lg bg-brand-100 px-4 py-3 text-sm text-brand-900" role="status">{{ session('status') }}</p>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-4">
+    <form method="POST" action="{{ route('login') }}" class="space-y-4"
+          x-data="{ sending: false }" @submit="$nextTick(() => sending = true)">
         @csrf
 
         <x-field :label="__('Email')" name="email" type="email" required autocomplete="username" />
@@ -21,7 +22,7 @@
             </a>
         </div>
 
-        <x-button>{{ __('Entrar') }}</x-button>
+        <x-button ::disabled="sending" ::aria-busy="sending">{{ __('Entrar') }}</x-button>
     </form>
 
     @if (config('nexo-sso.enabled'))

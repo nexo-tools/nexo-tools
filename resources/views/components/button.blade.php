@@ -1,7 +1,12 @@
 @props(['type' => 'submit'])
 
-<button type="{{ $type }}" {{ $attributes->class([
-    'inline-flex w-full items-center justify-center rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
-]) }}>
+{{-- The one primary CTA in the product. Shape and focus ring live in
+     .nexo-btn (nexo-ui.css), shared with every other Nexo tool.
+
+     Forms guard double submits with x-data="{ sending: false }" plus
+     @submit="$nextTick(() => sending = true)" and ::disabled/::aria-busy here.
+     The $nextTick matters: disabling the submit button synchronously inside the
+     submit handler aborts the navigation in some browsers. --}}
+<button type="{{ $type }}" {{ $attributes->class(['nexo-btn nexo-btn--primary w-full']) }}>
     {{ $slot }}
 </button>

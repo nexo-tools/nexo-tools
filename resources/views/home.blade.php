@@ -47,7 +47,7 @@
                             </div>
                         </div>
                         @if (($tool['status'] ?? 'live') === 'live' && $tool['url'])
-                            <a href="{{ $tool['url'] }}" class="mt-4 inline-block rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700">{{ __('Usar') }}</a>
+                            <a href="{{ $tool['url'] }}" class="nexo-btn nexo-btn--primary nexo-btn--sm mt-4">{{ __('Abrir') }}</a>
                         @endif
                     </div>
                 @endforeach
