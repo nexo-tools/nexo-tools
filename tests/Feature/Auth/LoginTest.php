@@ -3,7 +3,7 @@
 use App\Models\User;
 
 it('shows the login page', function () {
-    $this->get('/login')->assertOk()->assertSee('Inicia sesión');
+    $this->get('/login')->assertOk()->assertSee(__('Sign in to your account'));
 });
 
 it('logs in with valid credentials', function () {

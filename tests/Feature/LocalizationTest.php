@@ -33,9 +33,10 @@ it('translates validation messages', function () {
     expect(session('errors')->first('name'))->toContain('obrigatório');
 });
 
-it('keeps every string translated in en and pt', function () {
+// English is the source language, so only es and pt need a translation map.
+it('keeps every string translated in es and pt', function () {
     $result = Process::path(base_path())
         ->run('node scripts/generate-translations.mjs --check');
 
-    expect($result->exitCode())->toBe(0, 'Faltan traducciones: '.$result->errorOutput());
-})->skip(fn () => Process::run('which node')->failed(), 'node no disponible');
+    expect($result->exitCode())->toBe(0, 'Missing translations: '.$result->errorOutput());
+})->skip(fn () => Process::run('which node')->failed(), 'node not available');

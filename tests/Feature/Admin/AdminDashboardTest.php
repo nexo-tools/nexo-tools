@@ -82,7 +82,7 @@ it('AC-ADMIN-3: the alvarocdev view counts its visits and which tool referred th
 
     $response = $this->actingAs($admin)->get('/admin');
 
-    $response->assertOk()->assertSee(__('Visitas a alvarocdev'));
+    $response->assertOk()->assertSee(__('Visits to alvarocdev'));
 
     expect($response->viewData('alvaroVisits'))->toBe(3);
 
@@ -95,5 +95,5 @@ it('AC-ADMIN-4: with no data it renders an empty state, not an error', function 
 
     $this->actingAs($admin)->get('/admin')
         ->assertOk()
-        ->assertSee(__('Aún no hay datos de visitas.'));
+        ->assertSee(__('No visit data yet.'));
 });

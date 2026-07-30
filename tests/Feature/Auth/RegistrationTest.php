@@ -3,7 +3,7 @@
 use App\Models\User;
 
 it('shows the registration page', function () {
-    $this->get('/register')->assertOk()->assertSee('Crea tu cuenta');
+    $this->get('/register')->assertOk()->assertSee(__('Create your account'));
 });
 
 it('registers an organizer and logs them in', function () {

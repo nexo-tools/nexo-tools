@@ -1,7 +1,7 @@
 <x-guest-layout>
-    <h1 class="mb-1 text-xl font-bold">{{ __('Restablecer contraseña') }}</h1>
+    <h1 class="mb-1 text-xl font-bold">{{ __('Reset password') }}</h1>
     <p class="mb-6 text-sm text-muted">
-        {{ __('Ingresa tu email y te enviaremos un enlace para crear una nueva contraseña.') }}
+        {{ __('Enter your email and we\'ll send you a link to create a new password.') }}
     </p>
 
     @if (session('status'))
@@ -12,6 +12,6 @@
           x-data="{ sending: false }" @submit="$nextTick(() => sending = true)">
         @csrf
         <x-field :label="__('Email')" name="email" type="email" required autocomplete="username" />
-        <x-button ::disabled="sending" ::aria-busy="sending">{{ __('Enviar enlace') }}</x-button>
+        <x-button ::disabled="sending" ::aria-busy="sending">{{ __('Send link') }}</x-button>
     </form>
 </x-guest-layout>

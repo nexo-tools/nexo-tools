@@ -12,8 +12,8 @@ it('AC-TOOLS-1: shows the added tools as launch cards, not the empty state', fun
     $response->assertOk()
         ->assertSee('Nexo Links')
         ->assertSee(config('nexo-ecosystem.tools.nexolinks.url'), false) // launch url
-        ->assertSee(__('Abrir'))
-        ->assertDontSee(__('Todavía no añadiste herramientas'));
+        ->assertSee(__('Open'))
+        ->assertDontSee(__('You haven\'t added any tools yet'));
 
     // Precisely: the added set resolves the pivot against the registry.
     expect($response->viewData('added'))->toHaveKey('nexolinks');
@@ -54,7 +54,7 @@ it('AC-TOOLS-4: a user with no tools sees the empty state and no cross-tool API 
 
     $response = $this->actingAs($user)->get('/app');
 
-    $response->assertOk()->assertSee(__('Todavía no añadiste herramientas'));
+    $response->assertOk()->assertSee(__('You haven\'t added any tools yet'));
     expect($response->viewData('added'))->toBe([]);
 
     // Purely local: the springboard never reaches out to another tool. (v1)
