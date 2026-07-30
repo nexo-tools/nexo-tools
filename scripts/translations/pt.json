@@ -1,6 +1,5 @@
 {
     "Abrir": "Abrir",
-    "El hub del ecosistema Nexo: herramientas open source y self-hostables, con una sola cuenta.": "O hub do ecossistema Nexo: ferramentas open source e auto-hospedáveis, com uma única conta.",
     "Administración": "Administração",
     "Algo salió mal": "Algo deu errado",
     "Añadir": "Adicionar",
@@ -16,6 +15,7 @@
     "Demasiadas solicitudes": "Muitas solicitações",
     "Demasiados intentos. Vuelve a intentar en :seconds segundos.": "Muitas tentativas. Tente novamente em :seconds segundos.",
     "Día": "Dia",
+    "El hub del ecosistema Nexo: herramientas open source y self-hostables, con una sola cuenta.": "O hub do ecossistema Nexo: ferramentas open source e auto-hospedáveis, com uma única conta.",
     "El inicio de sesión con Nexo ID no está disponible por ahora. Inténtalo de nuevo más tarde.": "O login com o Nexo ID está temporariamente indisponível. Tente novamente mais tarde.",
     "Email": "Email",
     "En mantenimiento": "Em manutenção",
@@ -53,12 +53,12 @@
     "Saltar al contenido": "Pular para o conteúdo",
     "Si el email existe, te enviamos un enlace para restablecer la contraseña.": "Se o email existir, enviamos um link para redefinir a senha.",
     "Sin acceso": "Sem acesso",
-    "Términos": "Termos",
     "Todas las herramientas Nexo, una sola cuenta.": "Todas as ferramentas Nexo, uma só conta.",
     "Todavía no añadiste herramientas": "Você ainda não adicionou ferramentas",
     "Tu nombre": "Seu nome",
     "Tus herramientas": "Suas ferramentas",
     "Tuvimos un problema de nuestro lado. Ya estamos trabajando en ello.": "Tivemos um problema do nosso lado. Já estamos resolvendo.",
+    "Términos": "Termos",
     "Una cuenta para todas las herramientas Nexo.": "Uma conta para todas as ferramentas Nexo.",
     "Visitantes únicos": "Visitantes únicos",
     "Visitas": "Visitas",
@@ -69,5 +69,6 @@
     "¿Eres desarrollador?": "Você é desenvolvedor?",
     "¿No tienes cuenta?": "Não tem conta?",
     "¿Olvidaste tu contraseña?": "Esqueceu sua senha?",
+    "¿Quitar :tool de tus herramientas?": "Remover :tool das suas ferramentas?",
     "¿Ya tienes cuenta?": "Já tem conta?"
 }

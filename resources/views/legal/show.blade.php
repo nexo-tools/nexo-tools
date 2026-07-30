@@ -14,7 +14,7 @@
         <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg" />
 
         <main id="contenido" class="flex-1 px-4 py-10">
-            <article class="mx-auto w-full max-w-2xl rounded-2xl bg-surface p-6 shadow-sm sm:p-8">
+            <article class="mx-auto w-full max-w-2xl rounded-2xl border border-line bg-surface-raised p-6 shadow-sm sm:p-8">
                 <h1 class="text-2xl font-bold">{{ $content['title'] }}</h1>
                 <p class="mt-1 text-xs text-muted">{{ $updated }}</p>
 

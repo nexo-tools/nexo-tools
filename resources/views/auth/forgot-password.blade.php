@@ -5,7 +5,7 @@
     </p>
 
     @if (session('status'))
-        <p class="mb-4 rounded-lg bg-brand-100 px-4 py-3 text-sm text-brand-900" role="status">{{ session('status') }}</p>
+        <p class="nexo-flash mb-4" role="status">{{ session('status') }}</p>
     @endif
 
     <form method="POST" action="{{ route('password.email') }}" class="space-y-4"

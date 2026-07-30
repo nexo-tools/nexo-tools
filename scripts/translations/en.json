@@ -1,6 +1,5 @@
 {
     "Abrir": "Open",
-    "El hub del ecosistema Nexo: herramientas open source y self-hostables, con una sola cuenta.": "The Nexo ecosystem hub: open-source, self-hostable tools with a single account.",
     "Administración": "Admin",
     "Algo salió mal": "Something went wrong",
     "Añadir": "Add",
@@ -16,6 +15,7 @@
     "Demasiadas solicitudes": "Too many requests",
     "Demasiados intentos. Vuelve a intentar en :seconds segundos.": "Too many attempts. Try again in :seconds seconds.",
     "Día": "Day",
+    "El hub del ecosistema Nexo: herramientas open source y self-hostables, con una sola cuenta.": "The Nexo ecosystem hub: open-source, self-hostable tools with a single account.",
     "El inicio de sesión con Nexo ID no está disponible por ahora. Inténtalo de nuevo más tarde.": "Sign-in with Nexo ID is temporarily unavailable. Please try again later.",
     "Email": "Email",
     "En mantenimiento": "Under maintenance",
@@ -53,12 +53,12 @@
     "Saltar al contenido": "Skip to content",
     "Si el email existe, te enviamos un enlace para restablecer la contraseña.": "If the email exists, we've sent a link to reset the password.",
     "Sin acceso": "No access",
-    "Términos": "Terms",
     "Todas las herramientas Nexo, una sola cuenta.": "All the Nexo tools, one account.",
     "Todavía no añadiste herramientas": "You haven't added any tools yet",
     "Tu nombre": "Your name",
     "Tus herramientas": "Your tools",
     "Tuvimos un problema de nuestro lado. Ya estamos trabajando en ello.": "We had a problem on our end. We're already on it.",
+    "Términos": "Terms",
     "Una cuenta para todas las herramientas Nexo.": "One account for all the Nexo tools.",
     "Visitantes únicos": "Unique visitors",
     "Visitas": "Visits",
@@ -69,5 +69,6 @@
     "¿Eres desarrollador?": "Are you a developer?",
     "¿No tienes cuenta?": "Don't have an account?",
     "¿Olvidaste tu contraseña?": "Forgot your password?",
+    "¿Quitar :tool de tus herramientas?": "Remove :tool from your tools?",
     "¿Ya tienes cuenta?": "Already have an account?"
 }

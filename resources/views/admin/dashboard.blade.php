@@ -11,7 +11,7 @@
         </section>
     @else
         {{-- Overview tiles --}}
-        <section class="grid grid-cols-2 gap-4">
+        <section class="grid gap-4 sm:grid-cols-2">
             <div class="rounded-2xl border border-line bg-surface-raised p-5">
                 <p class="text-sm text-muted">{{ __('Visitas') }}</p>
                 <p class="mt-1 text-3xl font-bold">{{ number_format($totalVisits) }}</p>

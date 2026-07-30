@@ -2,7 +2,7 @@
     <h1 class="mb-6 text-xl font-bold">{{ __('Inicia sesión') }}</h1>
 
     @if (session('status'))
-        <p class="mb-4 rounded-lg bg-brand-100 px-4 py-3 text-sm text-brand-900" role="status">{{ session('status') }}</p>
+        <p class="nexo-flash mb-4" role="status">{{ session('status') }}</p>
     @endif
 
     <form method="POST" action="{{ route('login') }}" class="space-y-4"

@@ -9,6 +9,9 @@
         <section class="rounded-2xl border border-line bg-surface-raised p-8 text-center">
             <p class="text-lg font-semibold">{{ __('Todavía no añadiste herramientas') }}</p>
             <p class="mx-auto mt-2 max-w-md text-sm text-muted">{{ __('Explora el ecosistema Nexo y añade las que uses para tenerlas siempre a mano.') }}</p>
+            @if (count($available) > 0)
+                <a href="#anadir" class="nexo-btn nexo-btn--primary mt-5">{{ __('Añadir herramientas') }}</a>
+            @endif
         </section>
     @else
         {{-- Launch cards for the tools the user added. (AC-TOOLS-1) --}}
@@ -31,10 +34,15 @@
                         @if (($tool['status'] ?? 'live') === 'live' && $tool['url'])
                             <a href="{{ $tool['url'] }}" class="nexo-btn nexo-btn--primary nexo-btn--sm">{{ __('Abrir') }}</a>
                         @endif
-                        <form method="POST" action="{{ route('app.tools.destroy', $tool['key']) }}">
+                        {{-- Alpine, not an inline onsubmit=: the CSP allow-lists
+                             scripts by hash and never 'unsafe-inline', so an
+                             inline handler would be dropped and confirm nothing. --}}
+                        <form method="POST" action="{{ route('app.tools.destroy', $tool['key']) }}"
+                              x-data
+                              @submit="confirm(@js(__('¿Quitar :tool de tus herramientas?', ['tool' => $tool['name']]))) || $event.preventDefault()">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-sm text-muted hover:underline">{{ __('Quitar') }}</button>
+                            <button type="submit" class="nexo-btn nexo-btn--ghost nexo-btn--sm">{{ __('Quitar') }}</button>
                         </form>
                     </div>
                 </div>
@@ -44,7 +52,7 @@
 
     @if (count($available) > 0)
         {{-- Add from the registry. (AC-TOOLS-2) --}}
-        <section class="mt-12">
+        <section id="anadir" class="mt-12 scroll-mt-8">
             <h2 class="mb-4 text-lg font-semibold">{{ __('Añadir herramientas') }}</h2>
             <ul class="grid gap-3 sm:grid-cols-2">
                 @foreach ($available as $tool)
