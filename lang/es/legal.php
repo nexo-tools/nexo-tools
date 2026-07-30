@@ -16,12 +16,12 @@ return [
     'operator' => [
         'h' => 'Quién opera esta instancia',
         'p' => 'Esta instancia la opera :operator.',
-        'contact' => 'Para cualquier consulta sobre tus datos podés escribir a :contact.',
+        'contact' => 'Para cualquier consulta sobre tus datos puedes escribir a :contact.',
     ],
 
     'privacy' => [
         'title' => 'Privacidad',
-        'intro' => 'Nexo Tools es la portada del ecosistema Nexo: desde acá conocés las herramientas y entrás a la que necesites. Es open source y self-hosted. Recogemos lo mínimo para que el hub funcione, y nada más. No usamos cookies de seguimiento, no hay analítica de terceros y no se envía información a redes publicitarias.',
+        'intro' => 'Nexo Tools es la portada del ecosistema Nexo: desde aquí conoces las herramientas y entras a la que necesites. Es open source y self-hosted. Recogemos lo mínimo para que el hub funcione, y nada más. No usamos cookies de seguimiento, no hay analítica de terceros y no se envía información a redes publicitarias.',
         'sections' => [
             [
                 'h' => 'Mirar el hub no necesita cuenta',
@@ -33,11 +33,11 @@ return [
             ],
             [
                 'h' => 'Tu panel "tus herramientas"',
-                'p' => 'Cuando agregás una herramienta a tu panel guardamos dos cosas: tu cuenta y el identificador de esa herramienta en el catálogo (por ejemplo "nexoagenda"), con la fecha en que la agregaste. Es una lista de accesos directos y nada más: el hub no le pide datos a las otras herramientas ni sabe qué hacés dentro de ellas, y tu panel solo lo ves vos.',
+                'p' => 'Cuando agregas una herramienta a tu panel guardamos dos cosas: tu cuenta y el identificador de esa herramienta en el catálogo (por ejemplo "nexoagenda"), con la fecha en que la agregaste. Es una lista de accesos directos y nada más: el hub no le pide datos a las otras herramientas ni sabe qué haces dentro de ellas, y tu panel solo lo ves tú.',
             ],
             [
                 'h' => 'Entrar con Nexo ID',
-                'p' => 'Es opcional. Si lo usás, Nexo ID nos entrega tu identificador de cuenta, tu nombre y tu email, y guardamos ese identificador para reconocerte la próxima vez. También podés usar el hub con una cuenta local, sin Nexo ID.',
+                'p' => 'Es opcional. Si lo usas, Nexo ID nos entrega tu identificador de cuenta, tu nombre y tu email, y guardamos ese identificador para reconocerte la próxima vez. También puedes usar el hub con una cuenta local, sin Nexo ID.',
             ],
             [
                 'h' => 'Métricas del ecosistema, sin cookies',
@@ -45,7 +45,7 @@ return [
             ],
             [
                 'h' => 'Cookies',
-                'p' => 'Solo las necesarias para que la web funcione: la de sesión (para mantenerte identificado si tenés cuenta) y las que recuerdan el idioma y el tema claro/oscuro que elegiste. Estas dos últimas se comparten con las demás herramientas Nexo del mismo dominio, para que tu elección te siga de una a otra. Ninguna sirve para publicidad ni para seguimiento.',
+                'p' => 'Solo las necesarias para que la web funcione: la de sesión (para mantenerte identificado si tienes cuenta) y las que recuerdan el idioma y el tema claro/oscuro que elegiste. Estas dos últimas se comparten con las demás herramientas Nexo del mismo dominio, para que tu elección te siga de una a otra. Ninguna sirve para publicidad ni para seguimiento.',
             ],
             [
                 'h' => 'Correos',
@@ -72,15 +72,15 @@ return [
         'sections' => [
             [
                 'h' => 'Qué es el servicio',
-                'p' => 'Un punto de entrada al ecosistema Nexo: te muestra qué hace cada herramienta y te lleva a ella. Con una cuenta, además, podés armar un panel con las que usás. El hub no presta el servicio de cada herramienta: cada una tiene su propio operador, sus términos y su política de privacidad.',
+                'p' => 'Un punto de entrada al ecosistema Nexo: te muestra qué hace cada herramienta y te lleva a ella. Con una cuenta, además, puedes armar un panel con las que usas. El hub no presta el servicio de cada herramienta: cada una tiene su propio operador, sus términos y su política de privacidad.',
             ],
             [
                 'h' => 'Tu cuenta',
-                'p' => 'La cuenta es opcional: solo hace falta para el panel "tus herramientas". Podés crearla acá o entrar con Nexo ID. Sos responsable de lo que pase con tu cuenta y de mantener tu contraseña a salvo.',
+                'p' => 'La cuenta es opcional: solo hace falta para el panel "tus herramientas". Puedes crearla aquí o entrar con Nexo ID. Eres responsable de lo que pase con tu cuenta y de mantener tu contraseña a salvo.',
             ],
             [
                 'h' => 'Las herramientas del catálogo',
-                'p' => 'Los enlaces del catálogo apuntan a herramientas del ecosistema alojadas por separado. Que aparezcan acá no nos hace responsables de su funcionamiento, su disponibilidad ni del uso que hagas de ellas.',
+                'p' => 'Los enlaces del catálogo apuntan a herramientas del ecosistema alojadas por separado. Que aparezcan aquí no nos hace responsables de su funcionamiento, su disponibilidad ni del uso que hagas de ellas.',
             ],
             [
                 'h' => 'Uso indebido',
@@ -100,7 +100,7 @@ return [
             ],
             [
                 'h' => 'Software libre',
-                'p' => 'Nexo Tools se distribuye con licencia MIT: podés leer el código, modificarlo y alojar tu propia instancia. El software se entrega sin garantías, según indica esa licencia.',
+                'p' => 'Nexo Tools se distribuye con licencia MIT: puedes leer el código, modificarlo y alojar tu propia instancia. El software se entrega sin garantías, según indica esa licencia.',
             ],
             [
                 'h' => 'Cambios',

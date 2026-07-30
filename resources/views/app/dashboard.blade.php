@@ -1,14 +1,14 @@
 <x-app-layout>
     <header class="mb-8">
         <h1 class="text-2xl font-bold tracking-tight">{{ __('Tus herramientas') }}</h1>
-        <p class="mt-1 text-muted">{{ __('Lanzá cualquier herramienta Nexo desde acá.') }}</p>
+        <p class="mt-1 text-muted">{{ __('Lanza cualquier herramienta Nexo desde aquí.') }}</p>
     </header>
 
     @if (count($added) === 0)
         {{-- Empty state: invite to explore the registry. (AC-TOOLS-4) --}}
         <section class="rounded-2xl border border-line bg-surface-raised p-8 text-center">
             <p class="text-lg font-semibold">{{ __('Todavía no añadiste herramientas') }}</p>
-            <p class="mx-auto mt-2 max-w-md text-sm text-muted">{{ __('Explorá el ecosistema Nexo y añadí las que uses para tenerlas siempre a mano.') }}</p>
+            <p class="mx-auto mt-2 max-w-md text-sm text-muted">{{ __('Explora el ecosistema Nexo y añade las que uses para tenerlas siempre a mano.') }}</p>
         </section>
     @else
         {{-- Launch cards for the tools the user added. (AC-TOOLS-1) --}}
