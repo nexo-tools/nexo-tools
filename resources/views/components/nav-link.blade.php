@@ -2,8 +2,8 @@
 
 <a {{ $attributes->class([
     'rounded-lg px-3 py-2 text-sm',
-    'bg-brand-100 font-medium text-brand-900 dark:bg-brand-900 dark:text-brand-100' => $active,
-    'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700' => ! $active,
+    'bg-primary-subtle font-medium text-primary-subtle-fg' => $active,
+    'text-muted hover:bg-surface-sunken hover:text-ink' => ! $active,
 ]) }} @if ($active) aria-current="page" @endif>
     {{ $slot }}
 </a>

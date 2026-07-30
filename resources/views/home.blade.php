@@ -8,7 +8,7 @@
             :canonical="url('/')" />
     </head>
     <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
-        <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-surface focus:px-4 focus:py-2 focus:text-brand-700">
+        <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-surface focus:px-4 focus:py-2 focus:text-link">
             {{ __('Saltar al contenido') }}
         </a>
 
@@ -56,7 +56,7 @@
             <section class="mt-12 rounded-2xl border border-line bg-surface-raised p-5 text-center">
                 <p class="text-sm text-muted">
                     {{ __('¿Eres desarrollador?') }}
-                    <a href="{{ $githubOrg }}" class="font-medium text-brand-700 hover:underline dark:text-brand-400" rel="noopener">{{ __('Explora el código en GitHub') }}</a>
+                    <a href="{{ $githubOrg }}" class="font-medium text-link hover:underline" rel="noopener">{{ __('Explora el código en GitHub') }}</a>
                 </p>
             </section>
         </main>

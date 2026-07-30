@@ -76,10 +76,27 @@
     /* Semantic utilities so content uses bg-surface / text-ink / text-muted etc.
        (theme-aware: they resolve to the light/dark value via data-theme). */
     --color-bg: var(--nexo-bg);
+    --color-bg-subtle: var(--nexo-bg-subtle);
     --color-surface: var(--nexo-surface);
     --color-surface-raised: var(--nexo-surface-raised);
+    --color-surface-sunken: var(--nexo-surface-sunken);
     --color-ink: var(--nexo-text);
     --color-muted: var(--nexo-text-muted);
     --color-subtle: var(--nexo-text-subtle);
     --color-line: var(--nexo-border);
+
+    /* Separate from --color-line on purpose: `line` is for decorative rules,
+       `control` is the outline of an input or button and must clear the 3:1 of
+       WCAG 1.4.11, which slate-200 on white never did. */
+    --color-control: var(--nexo-border-control);
+
+    --color-primary: var(--nexo-primary);
+    --color-primary-fg: var(--nexo-primary-fg);
+    --color-primary-subtle: var(--nexo-primary-subtle);
+    --color-primary-subtle-fg: var(--nexo-primary-subtle-fg);
+    --color-ring: var(--nexo-ring);
+    --color-link: var(--nexo-link);
+    --color-danger: var(--nexo-danger);
+    --color-danger-subtle: var(--nexo-danger-subtle);
+    --color-danger-subtle-fg: var(--nexo-danger-subtle-fg);
 }
