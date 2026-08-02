@@ -25,6 +25,11 @@ return [
 
     // Help center contact target (mailto is used when no support URL is set).
     'support_url' => env('NEXO_SUPPORT_URL'),
+    // Mail al operador cuando algo revienta (nexo-ops). Off por default: una
+    // instancia recién clonada no debería empezar a mandar correo sin que su
+    // operador lo decida. Dedupe de 15 min por excepción, kill-switch por env.
+    'ops_mail' => env('NEXO_OPS_MAIL', false),
+
     'support_email' => env('NEXO_SUPPORT_EMAIL', 'hola@alvarocdev.com'),
 
     // Who answers for THIS instance on the legal pages. No default on purpose:
