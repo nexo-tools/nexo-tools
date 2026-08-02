@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <h1 class="mb-1 text-xl font-bold">{{ __('Create your account') }}</h1>
+    <h1 class="mb-1 text-xl font-semibold">{{ __('Create your account') }}</h1>
     <p class="mb-6 text-sm text-muted">{{ __('One account for all the Nexo tools.') }}</p>
 
     <form method="POST" action="{{ route('register') }}" class="space-y-4"
