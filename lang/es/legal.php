@@ -57,7 +57,7 @@ return [
             ],
             [
                 'h' => 'Tus derechos',
-                'p' => 'Podés pedir acceso a tus datos, su corrección o su borrado escribiendo a quien opera esta instancia (el contacto está en la página de ayuda).',
+                'p' => 'Puedes pedir acceso a tus datos, su corrección o su borrado escribiendo a quien opera esta instancia (el contacto está en la página de ayuda).',
             ],
             [
                 'h' => 'Otras instancias',
