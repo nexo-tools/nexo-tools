@@ -64,7 +64,14 @@ cp .env.example .env
 #   APP_NAME="NexoTools", APP_ENV=production, APP_DEBUG=false
 #   APP_URL=https://nexotools.<domain>
 #   DB_CONNECTION=sqlite   +   DB_DATABASE=<abs path>/database/database.sqlite
-#   SESSION_DRIVER=file, CACHE_STORE=file, MAIL_MAILER=log
+#   SESSION_DRIVER=file, CACHE_STORE=file
+#   Mail — a production instance sends real mail (today: the password reset):
+#     MAIL_MAILER=smtp + the mailbox's host/port (this app reads MAIL_SCHEME,
+#     not MAIL_ENCRYPTION — see config/mail.php:42), and the family From
+#     convention: one address per tool,
+#     MAIL_FROM_ADDRESS="nexotools@<domain>" / MAIL_FROM_NAME="Nexo Tools".
+#     MAIL_MAILER=log belongs to an instance that deliberately sends nothing:
+#     with it the reset link never leaves the box, it only lands in the log.
 #   NEXO_ATTRIBUTION_TEXT / NEXO_ATTRIBUTION_URL for the footer
 php artisan key:generate --force
 
