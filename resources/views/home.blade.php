@@ -12,7 +12,7 @@
         // BeaconController::accepted() — response('', 204).
         [__('Beacon'), __('Always 204, no cookie and no session')],
         // config/nexo.php derives the allowlist from the registry plus author_url.
-        [__('Accepted origins'), __("The registry's tools plus alvarocdev — a closed allowlist")],
+        [__('Accepted origins'), __('The registry\'s tools plus alvarocdev — a closed allowlist')],
         // config/nexo-sso.php — env-gated, so a standalone install works untouched.
         [__('One account'), __('Optional, through Nexo ID (OpenID Connect)')],
         // The generator's locales, plus the shared theme toggle.

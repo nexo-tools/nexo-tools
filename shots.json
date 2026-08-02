@@ -1,0 +1,27 @@
+{
+  "_comment": "Screenshot manifest for `node ~/alvaro/scripts/nexo-shots.mjs .`. Underscore-prefixed keys are comments (JSON has none) — the script ignores them.",
+  "_rules": "LOCAL instance only (design.md, Family): `docker compose up -d`, then capture. Never production.",
+  "_variant": "The hub has no product figures and no login block, and that is the documented variant (design.md, ## Variants): its registry-driven grid IS the producto section, and the panel captures belong to each tool's own landing (ADR-001). So this manifest only carries the mobile gate evidence and the README shot.",
+  "baseUrl": "http://localhost:8080",
+  "shots": [
+    {
+      "_comment": "Mobile-first: the gate's evidence is the landing at 375px, light and dark (STANDARD.md).",
+      "name": "landing-mobile",
+      "path": "/?lang=es",
+      "viewport": { "width": 375, "height": 812 },
+      "themes": ["light", "dark"],
+      "out": "public/landing/shot-mobile",
+      "fullPage": false
+    },
+    {
+      "_comment": "The README's home shot (public-readme requires docs/screenshots/home-{light,dark}.png): PNG, fullPage.",
+      "name": "home",
+      "path": "/?lang=es",
+      "viewport": { "width": 1280, "height": 800 },
+      "themes": ["light", "dark"],
+      "out": "docs/screenshots/home",
+      "fullPage": true,
+      "format": "png"
+    }
+  ]
+}
