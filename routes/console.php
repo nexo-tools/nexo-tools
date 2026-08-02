@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -12,7 +13,12 @@ use Illuminate\Support\Facades\Schedule;
  * line no verification, reset or security notice ever leaves the server — the
  * failure mode that hit nexoid, where the app looked perfectly healthy while
  * every security notice sat in the jobs table.
+ *
+ * The drain runs INLINE (Schedule::call + Artisan::call), never as a
+ * Schedule::command subprocess: proc_open/exec are disabled on this hosting
+ * and a scheduled subprocess dies before it starts.
  */
-Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=55')
+Schedule::call(fn () => Artisan::call('queue:work --stop-when-empty --tries=3 --max-time=55'))
+    ->name('queue-drain')
     ->everyMinute()
     ->withoutOverlapping();
