@@ -21,9 +21,6 @@
         {{-- Only the hero carries a primary CTA (design.md, "CTA voice"), so the
              header's action stays a ghost. --}}
         <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg">
-            <x-slot:nav>
-                <a href="{{ route('help') }}" class="nexo-btn nexo-btn--ghost">{{ __('nexo.help.title') }}</a>
-            </x-slot:nav>
             <x-slot:actions>
                 @auth
                     <a href="{{ route('dashboard') }}" class="nexo-btn nexo-btn--ghost">{{ __('Your tools') }}</a>
