@@ -7,8 +7,10 @@ NexoTools is the Laravel 13 hub of the Nexo ecosystem on Hostinger shared hostin
 > tools* springboard (`user_tools`) and the beacon receiver (`beacon_events`), all of which write
 > on every request. Local development runs on **MySQL** (the shared `nexo` stack). SQLite serialises
 > writes on a single file, so the beacon under concurrency is the wrong shape for it. **New
-> instances should provision MySQL**; the SQLite steps are kept because the running instance was
-> deployed with them and needs to be checked before it is migrated.
+> instances should provision MySQL.** The reference instance **stays on SQLite by decision**
+> (Alvaro, 2026-08-02): at its current traffic the tradeoff is fine, and the server backup takes
+> a consistent nightly snapshot of the file (`sqlite3 .backup`, see the ops standard). Revisit if
+> the beacon volume ever makes writes contend.
 
 Assumptions: SSH + Composer over SSH; **no Node on the server** — assets are built locally/CI and uploaded.
 
