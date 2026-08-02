@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\App\SpringboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -90,3 +91,15 @@ Route::middleware(EnsureNexoAdmin::class)->group(function () {
 
 // Nexo ID SSO client (no-op unless NEXO_SSO_ENABLED) — powers v2 "your tools".
 require __DIR__.'/nexo-sso.php';
+
+// Email verification. Not enforced as middleware on the panel: somebody who
+// just signed up has tools to add, and locking them out over an unread email
+// would be our problem, not theirs. What it buys is the way back into an
+// account whose address had a typo — which was simply lost before.
+Route::middleware('auth')->group(function () {
+    Route::get('verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('verify-email/send', [EmailVerificationController::class, 'send'])
+        ->middleware('throttle:6,1')->name('verification.send');
+});

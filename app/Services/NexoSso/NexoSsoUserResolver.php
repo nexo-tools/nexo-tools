@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\NexoSso;
 
+use App\Mail\NexoIdLinked;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 /**
@@ -40,7 +42,18 @@ class NexoSsoUserResolver
                 throw new NexoSsoLinkRefusedException('Email not verified by the identity provider.');
             }
 
+            $firstLink = $existing->nexo_id_sub === null;
+
             $existing->forceFill(['nexo_id_sub' => $sub])->save();
+
+            // A change of access to the account: the owner hears about it from
+            // the tool where it happened, never from nexo-id. Only on the first
+            // link — signing in again is not news.
+            if ($firstLink) {
+                Mail::to($existing->email)
+                    ->locale(app()->getLocale())
+                    ->queue(new NexoIdLinked($existing));
+            }
 
             return $existing;
         }

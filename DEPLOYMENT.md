@@ -73,11 +73,18 @@ cp .env.example .env
 #     MAIL_MAILER=log belongs to an instance that deliberately sends nothing:
 #     with it the reset link never leaves the box, it only lands in the log.
 #   NEXO_ATTRIBUTION_TEXT / NEXO_ATTRIBUTION_URL for the footer
+#   QUEUE_CONNECTION=database + the scheduler cron below: every mail is queued
+#   (family rule C2), so without the cron nothing is ever delivered.
 php artisan key:generate --force
 
 # 3. SQLite DB
 touch database/database.sqlite
 php artisan migrate --force
+
+# 3b. Cron (panel → Cron Jobs) — the scheduler drains the mail queue every
+#     minute (routes/console.php). Without it the app looks healthy and no
+#     verification, reset or security notice ever leaves the server:
+#   * * * * * cd ~/domains/<domain>/nexo-tools && php artisan schedule:run >> /dev/null 2>&1
 
 # 4. storage symlink (storage:link fails — exec() disabled)
 ln -s "$PWD/storage/app/public" "$PWD/public/storage"
