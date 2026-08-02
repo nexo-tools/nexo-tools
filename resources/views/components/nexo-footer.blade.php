@@ -28,6 +28,11 @@
         {{ __('nexo.footer.source') }}
     </a>
 
+    {{-- Help lives here for the same reason the legal pages do, and it took an
+         audit to notice: it used to be a ghost button on the landing header
+         only, so a signed-in owner inside the panel had no link to it. --}}
+    <a href="{{ route('help') }}">{{ __('nexo.help.title') }}</a>
+
     {{-- Legal pages, reachable from every page: the footer is the only surface
          present on all of them, error pages included. Requires the legal.* routes
          (templates/nexo-ui/pages/legal/routes-snippet.php). --}}

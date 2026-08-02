@@ -3,6 +3,10 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        {{-- An error page has no business in a search result. Declared here
+             rather than passed down because partials.head builds its own head
+             and takes no noindex flag. --}}
+        <meta name="robots" content="noindex">
         @include('partials.head')
     </head>
     <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
