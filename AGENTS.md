@@ -140,6 +140,7 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
 
 ## Accumulated context
 
+- **2026-08-02** — **Ola de estandarización transversal.** El hub tenía un solo mail (el reset default del framework, en inglés, y en producción ni siquiera salía porque el .env dice `MAIL_MAILER=log`). Ahora tiene los cuatro de la familia: verificación de email (sin ella cualquiera podía registrar la dirección de otra persona), reset propio, contraseña cambiada y vínculo de Nexo ID — todos encolados con la plantilla de familia y el scheduler drenando. Salió el `schedule` fantasma que agendaba un comando inexistente. 124 → 155 tests.
 - **2026-07-28** — **Ecosystem normalization run** (`alvaro/inbox/ecosystem-normalization/`). This
   file was the worst offender in the ecosystem: it was in Spanish claiming the repo was private,
   said production was "not deployed yet" with the site live, described the stack as a static site
