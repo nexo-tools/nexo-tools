@@ -17,7 +17,10 @@ import { readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 const CONFIG = {
   mark: 'resources/brand/isotype.svg', // this tool's Nexo mark (copied from nexo-brand/marks)
   label: 'Nexo Tools',                 // wordmark shown on the OG card
-  tagline: 'The open Nexo ecosystem.',
+  // The registry's tagline, verbatim: one claim per tool across every
+  // surface, og-image included (STANDARD.md, "El claim canónico vive en el
+  // registro"). Keep it in sync with config/nexo-ecosystem.php.
+  tagline: 'El hub abierto del ecosistema Nexo.',
   publicDir: 'public',
 };
 // Brand constants (do not edit — from the Nexo palette).
