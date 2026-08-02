@@ -1,0 +1,11 @@
+[
+    {
+        "date": "2026-08-02",
+        "macrostructure": "Workbench",
+        "theme": "custom",
+        "theme_axes": "paper light/dark via nexo tokens / display sans (Instrument Sans) / accent hue cool ~290° violet",
+        "vibe": "utilitario Nexo, violeta sobrio, es-first",
+        "enrichment": "none",
+        "brief": "Landing pública de Nexo Tools migrada al sistema de familia (templates/nexo-ui/design.md): esqueleto hero → producto → datos → preguntas → cierre, h1 = tagline del registro (antes era el nombre de la app). Variante hub documentada en design.md ## Variants: el grid registry-driven ES la sección producto, sin figuras — las capturas de panel viven en las landings de cada tool y el hub no compite con ellas (ADR-001). El spec sheet habla del ecosistema y de la métrica cookieless del beacon. FAQ desde lang/*/help.php. Sobre design.md la regla de diversificación está invertida: las 6 tools comparten estructura, la variedad vive dentro de cada sección."
+    }
+]
