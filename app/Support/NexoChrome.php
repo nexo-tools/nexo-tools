@@ -177,6 +177,31 @@ final class NexoChrome
         return $day instanceof CarbonImmutable && $day->format('Y-m-d') === $until ? $day->addDay() : null;
     }
 
+    /**
+     * Whether the app's own password form offers «Recordarme». That is a
+     * credential Nexo ID cannot revoke, so it only exists in `local` mode; in
+     * `transition` and `sso` how long a person stays signed in is Nexo ID's
+     * call (CONTRATO-F3 §2.7). Standalone (SSO off) it is always offered.
+     *
+     * Owned by the sso-client template like the mode itself: with session v2
+     * ported, NexoAuthMode::allowsRemember() decides; until then, local mode.
+     * The login view hides the checkbox with this, and the login request must
+     * ask the same question before passing `remember` (the form is not a guard).
+     */
+    public static function allowsRemember(): bool
+    {
+        if (! self::ssoEnabled()) {
+            return true;
+        }
+
+        $owner = 'App\\Services\\NexoSso\\NexoAuthMode';
+        if (class_exists($owner)) {
+            return (bool) $owner::allowsRemember();
+        }
+
+        return self::authMode() === 'local';
+    }
+
     /** The last day passwords still work in transition, localized («31 de enero de 2027»). */
     public static function transitionLastDay(): ?string
     {

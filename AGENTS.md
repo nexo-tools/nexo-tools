@@ -115,13 +115,20 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
   present) and `ref` (referring tool slug, for cross-tool attribution). Honours `DNT`/`Sec-GPC`.
   Never sets a cookie.
 - **Allowlist**: only accepts `origin`/`ref` ∈ keys of `config('nexo.beacon.origins')` (derived
-  from `nexo-ecosystem` + alvarocdev). CORS answers only those hosts and handles the OPTIONS
-  preflight. Per-IP rate limit (`NEXO_BEACON_RATE_LIMIT`, 60/min).
+  from `nexo-ecosystem` + alvarocdev, so `NEXO_URL_*` moves it too). `BeaconCors` sends
+  `Access-Control-Allow-Origin` only to those hosts, **never** `Access-Control-Allow-Credentials`,
+  and `Vary: Origin` always; it answers the OPTIONS preflight itself (POST + `Content-Type`, before
+  the throttle). Per-IP rate limit (`NEXO_BEACON_RATE_LIMIT`, 60/min) on the POST; its 429 carries
+  the CORS header too.
 - **Route outside the `web` group** (no session → no `Set-Cookie`, no CSRF): `routes/beacon.php`,
   wired in `bootstrap/app.php` (`then:`). Config in `config/nexo.php` (`nexo.beacon.*`).
-- **Emitter**: `resources/js/nexo-beacon.js` (reads `nexo:beacon-*` metas, honours
-  `navigator.doNotTrack`, `sendBeacon` on pageload). Wired here as the reference
-  (`partials/beacon`, rendered only when the beacon is on); the other tools and alvarocdev copy it.
+- **Emitter**: `resources/js/nexo-beacon.js` and `resources/views/partials/beacon.blade.php`, both
+  byte-identical copies of `alvaro/templates/nexo-ui/beacon/` (do not edit them here). Reads the
+  `nexo:beacon-*` metas (rendered only when the beacon is on), honours DNT/GPC and posts a
+  `text/plain` `fetch` with `credentials: 'omit'` and `keepalive` on load: a CORS simple request,
+  no preflight, no cookie. Pinned by `tests/Feature/Nexo/BeaconClientTest.php`. Here the endpoint
+  is relative (`/beacon`); an absolute `NEXO_BEACON_ENDPOINT` on another origin is added to
+  `connect-src` by `SecurityHeaders` (never a fixed host).
 - **/admin**: aggregated metrics from `beacon_events`, gated by `sub` ∈ `NEXO_ADMIN_SUBS` (empty =
   no admin surface at all).
 
@@ -140,6 +147,7 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
 
 ## Accumulated context
 
+- **2026-11-26** — **nexo-ui v2.1** (CONTRATO-F3 §0.1, ítems 5–7). **Beacon:** en producción cada página de cada tool tiraba un error de CORS y no contaba ninguna visita de otra app (H-nexoid-15). Causa, reproducida en local en Chromium y WebKit: el emisor usaba `sendBeacon` con un Blob JSON, que dispara preflight, y `sendBeacon` siempre manda credenciales; el preflight de `BeaconCors` no decía `Access-Control-Allow-Credentials` (y no tiene por qué). Ahora el emisor es un `fetch` `text/plain` con `credentials: 'omit'` y `keepalive` (sin preflight, sin cookie) y el hub responde sin credenciales, con `Vary: Origin` y un preflight que solo autoriza POST. Emisor y partial pasan a la plantilla (`templates/nexo-ui/beacon/`). **`data-confirm`:** el manejador vive en `nexo-ui.js` (de la plantilla, generalizado desde nexoevents: form, botón o link); «Quitar» del panel lo usa, y el guardián `NoInlineHandlersTest` impide `on<evento>=` en las vistas. **`color-scheme`** según `data-theme` en `nexo-ui.css` (los controles nativos siguen al tema). **`NexoChrome::allowsRemember()`** decide si el login muestra «Recordarme». 205 → 219 tests (uno saltado, como antes).
 - **2026-11-26** — **Chrome v2** (experiencia unificada Nexo, F3; plan en `alvaro/inbox/experiencia-unificada/`). El hub es el primer consumidor de la plantilla `nexo-ui` v2: un solo `<x-nexo-header />` sin props en todos los layouts (marca, isotipo y panel salen del registro y de `config('nexo.chrome.panel_route')`), menú de cuenta con «Tus herramientas» / «Tu cuenta Nexo ID» / ayuda / «Cerrar sesión», hoja a lo ancho en el celular (un solo botón, foco atrapado), switcher que con sesión y SSO abre `url + entry` de cada tool, descripciones traducidas (`nexo.ecosystem.*`), «powered by» traducido, login con «Continuar con Nexo ID» primero (`x-nexo-sign-in-options`), títulos «<Página> — Nexo Tools». Las decisiones viven en `app/Support/NexoChrome.php` (idéntico en las 6, no editar acá). También: `NexoNoStore` (no-store con sesión y en auth), `form-action` con el origen de Nexo ID cuando SSO está activo (middleware + `.htaccess`) y `Route::fallback` al final de `web.php` para que el 404 sepa quién tiene sesión (nombrada `fallback` y excluida del SSO silencioso en `config/nexo-sso.php`: si no, un `/apple-touch-icon.png` faltante gastaba el intento silencioso de la sesión y pisaba `url.intended`). Las CTA de la portada usan `NexoChrome::signUpUrl()`/`signInUrl()`, así siguen al modo de auth como el header. Guardianes nuevos en `tests/Feature/Nexo/` (AccountMenu, MobileMenu, HeaderEverywhere, NoStore, CspFormAction, PageTitle, LoginNexoIdFirst, Glossary, PublicFooter). **Pendiente, a cargo de otra etapa:** la sesión v2 (`nexo-sso.enter`, logout con back-channel, `NEXO_AUTH_MODE=sso` en producción) y el lanzador D7 de `/app`; hasta que la sesión v2 esté en todas las tools, el switcher con sesión apunta a rutas que todavía no existen en producción, así que el chrome v2 y la sesión v2 se despliegan juntos.
 - **2026-08-02** — **Ola de estandarización transversal.** El hub tenía un solo mail (el reset default del framework, en inglés, y en producción ni siquiera salía porque el .env dice `MAIL_MAILER=log`). Ahora tiene los cuatro de la familia: verificación de email (sin ella cualquiera podía registrar la dirección de otra persona), reset propio, contraseña cambiada y vínculo de Nexo ID — todos encolados con la plantilla de familia y el scheduler drenando. Salió el `schedule` fantasma que agendaba un comando inexistente. 124 → 155 tests.
 - **2026-07-28** — **Ecosystem normalization run** (`alvaro/inbox/ecosystem-normalization/`). This

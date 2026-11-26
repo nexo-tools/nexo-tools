@@ -8,6 +8,17 @@
  *   @import 'nexo-ui/css/nexo-ui.css';
  */
 
+/* ---- Native controls follow the theme (v2.1) --------------------------- */
+/* The date and time pickers, selects, checkboxes and scrollbars are drawn by
+   the browser from `color-scheme`, not from the tokens: without this a dark
+   page got a black calendar icon on a dark field and white scrollbars
+   (H-nexoevents-17). theme-init stamps data-theme before the first paint; the
+   :not([data-theme]) line covers a page without it (JS off), where the tokens
+   follow the OS preference and so do the controls. */
+:root:not([data-theme]) { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
 /* ---- Base / buttons -------------------------------------------------- */
 .nexo-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;

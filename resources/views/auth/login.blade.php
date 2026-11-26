@@ -19,7 +19,7 @@
             <x-field :label="__('Email')" name="email" type="email" required autocomplete="username" />
             <x-field :label="__('Password')" name="password" type="password" required autocomplete="current-password" />
 
-            @if (\App\Support\NexoChrome::authMode() === 'local')
+            @if (\App\Support\NexoChrome::allowsRemember())
                 <label class="flex min-h-11 items-center gap-2 text-sm">
                     <input type="checkbox" name="remember" class="rounded border-control bg-surface text-primary focus:ring-ring">
                     {{ __('Remember me') }}

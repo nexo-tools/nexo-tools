@@ -1,4 +1,7 @@
-{{-- Sign-in options, chrome v2 — CONTRATO-F3 §5.4 / §2.7. Goes INSIDE the
+{{-- Sign-in options, chrome v2 — CONTRATO-F3 §5.4 / §2.7. THE login component
+     of every Nexo app (CONTRATO-F3 §0.1): the sso-client's <x-nexo-sso.login>
+     leaves that template, so a login screen never renders it, and
+     LoginNexoIdFirstTest checks the screen in the three modes. Goes INSIDE the
      nexo-auth-card of the login screen; the slot is the app's own email +
      password form. With SSO on, «Continuar con Nexo ID» is THE primary action,
      first and alone in violet; what happens to the password form depends on
@@ -21,12 +24,18 @@
      could never accept it. The slot's own submit should be a ghost button when
      NexoChrome::ssoSignInUrl() is set: one violet button per screen.
 
+     «Recordarme» belongs to the slot, and only where
+     NexoChrome::allowsRemember() says so (local mode, or SSO off): in
+     transition and sso a tool emits no remember-me of its own.
+
+       @if (\App\Support\NexoChrome::allowsRemember())
+           <label><input type="checkbox" name="remember"> {{ __('Remember me') }}</label>
+       @endif
+
      It also closes the card with «¿No tienes una cuenta? Crear cuenta», which
      goes to Nexo ID's sign-up outside local mode (NexoChrome::signUpUrl()).
      The mode comes from NexoChrome::authMode(), which defers to the sso-client's
-     NexoAuthMode once session v2 is in. The sso-client ships its own
-     <x-nexo-sso.login> with the same contract; an app renders ONE of the two
-     (LoginNexoIdFirstTest checks the result, not the component). --}}
+     NexoAuthMode once session v2 is in. --}}
 @php
     $mode = \App\Support\NexoChrome::authMode();
     $ssoUrl = \App\Support\NexoChrome::ssoSignInUrl();

@@ -34,12 +34,10 @@
                         @if (($tool['status'] ?? 'live') === 'live' && $tool['url'])
                             <a href="{{ $tool['url'] }}" class="nexo-btn nexo-btn--primary nexo-btn--sm">{{ __('Open') }}</a>
                         @endif
-                        {{-- Alpine, not an inline onsubmit=: the CSP allow-lists
-                             scripts by hash and never 'unsafe-inline', so an
-                             inline handler would be dropped and confirm nothing. --}}
+                        {{-- data-confirm (nexo-ui.js), never an inline handler:
+                             the CSP drops those (NoInlineHandlersTest). --}}
                         <form method="POST" action="{{ route('app.tools.destroy', $tool['key']) }}"
-                              x-data
-                              @submit="confirm(@js(__('Remove :tool from your tools?', ['tool' => $tool['name']]))) || $event.preventDefault()">
+                              data-confirm="{{ __('Remove :tool from your tools?', ['tool' => $tool['name']]) }}">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="nexo-btn nexo-btn--ghost nexo-btn--sm">{{ __('Remove') }}</button>

@@ -171,6 +171,31 @@ it('reads the mode the way the sso-client does', function () {
     expect(NexoChrome::authMode())->toBe('local', 'With SSO off the mode is local, whatever NEXO_AUTH_MODE says.');
 });
 
+// «Recordarme» is a credential Nexo ID cannot revoke: only local mode (and
+// standalone) offers it. NexoChrome::allowsRemember() is what the login view
+// asks; with session v2 ported it is NexoAuthMode's answer.
+it('offers «Recordarme» only where NexoChrome::allowsRemember() says so', function () {
+    $expected = ['local' => true, 'transition' => false, 'sso' => false];
+
+    foreach ($expected as $mode => $allows) {
+        loginNexoIdFirstMode($mode);
+        expect(NexoChrome::allowsRemember())->toBe($allows, "In {$mode} mode «Recordarme» must be ".($allows ? 'offered.' : 'hidden.'));
+
+        $owner = 'App\\Services\\NexoSso\\NexoAuthMode';
+        if (class_exists($owner)) {
+            expect(NexoChrome::allowsRemember())->toBe((bool) $owner::allowsRemember(), 'NexoChrome must defer to NexoAuthMode::allowsRemember().');
+        }
+
+        $html = loginNexoIdFirstPage();
+        if ($html !== null && ! $allows) {
+            expect(str_contains($html, 'name="remember"'))->toBeFalse("In {$mode} mode the login screen offers «Recordarme».");
+        }
+    }
+
+    config()->set('nexo-sso.enabled', false);
+    expect(NexoChrome::allowsRemember())->toBeTrue('Standalone (SSO off), «Recordarme» is always offered.');
+});
+
 it('keeps the plain password form when SSO is switched off', function () {
     if (loginNexoIdFirstPage() === null) {
         test()->markTestSkipped('This app has no login screen.');

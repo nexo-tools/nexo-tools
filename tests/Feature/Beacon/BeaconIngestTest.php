@@ -92,17 +92,80 @@ it('AC-BEACON-6: sends Access-Control-Allow-Origin only to allowlisted origins',
     expect($rejected->headers->has('Access-Control-Allow-Origin'))->toBeFalse();
 });
 
-it('AC-BEACON-6: answers the preflight OPTIONS for an allowlisted origin', function () {
+it('AC-BEACON-6: answers the preflight OPTIONS for an allowlisted origin, without credentials', function () {
     $response = $this->call('OPTIONS', '/beacon', [], [], [], [
         'HTTP_ORIGIN' => ALLOWED_HOST,
         'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'POST',
+        'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'content-type',
     ]);
 
     expect($response->getStatusCode())->toBe(204);
     $response->assertHeader('Access-Control-Allow-Origin', ALLOWED_HOST);
-    expect($response->headers->get('Access-Control-Allow-Methods'))->toContain('POST');
+    $response->assertHeader('Access-Control-Allow-Methods', 'POST');
+    $response->assertHeader('Access-Control-Allow-Headers', 'Content-Type');
+    expect($response->headers->has('Access-Control-Allow-Credentials'))->toBeFalse()
+        ->and($response->headers->get('Vary'))->toContain('Origin');
     // Preflight must not write.
     expect(BeaconEvent::query()->count())->toBe(0);
+});
+
+it('AC-BEACON-6: a preflight from outside the registry, or not for POST, gets no CORS headers', function (string $origin, string $method) {
+    $response = $this->call('OPTIONS', '/beacon', [], [], [], [
+        'HTTP_ORIGIN' => $origin,
+        'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => $method,
+    ]);
+
+    expect($response->getStatusCode())->toBe(204)
+        ->and($response->headers->has('Access-Control-Allow-Origin'))->toBeFalse()
+        ->and($response->headers->has('Access-Control-Allow-Methods'))->toBeFalse();
+})->with([
+    'foreign origin' => ['https://attacker.example', 'POST'],
+    'look-alike host' => ['https://nexolinks.alvarocdev.com.attacker.example', 'POST'],
+    'other scheme' => ['http://nexolinks.alvarocdev.com', 'POST'],
+    'not POST' => [ALLOWED_HOST, 'DELETE'],
+]);
+
+it('AC-BEACON-6: the v2.1 emitter request (text/plain, no credentials) is stored and readable', function () {
+    // What resources/js/nexo-beacon.js sends: a CORS "simple" request, so the
+    // browser sends no preflight and no cookie (H-nexoid-15).
+    $response = $this->call('POST', '/beacon', [], [], [], [
+        'HTTP_ORIGIN' => ALLOWED_HOST,
+        'CONTENT_TYPE' => 'text/plain;charset=UTF-8',
+    ], json_encode(['origin' => ALLOWED_ORIGIN, 'path' => '/hola?x=1', 'event' => 'pageview']));
+
+    $response->assertNoContent();
+    $response->assertHeader('Access-Control-Allow-Origin', ALLOWED_HOST);
+    expect($response->headers->has('Access-Control-Allow-Credentials'))->toBeFalse()
+        ->and($response->headers->get('Vary'))->toContain('Origin')
+        ->and($response->headers->getCookies())->toBe([]);
+
+    $event = BeaconEvent::query()->sole();
+    expect($event->origin)->toBe(ALLOWED_ORIGIN)->and($event->path)->toBe('/hola');
+});
+
+it('AC-BEACON-6: every tool of the registry (and alvarocdev) is an allowed origin', function () {
+    $origins = config('nexo.beacon.origins');
+
+    foreach (config('nexo-ecosystem.tools') as $key => $tool) {
+        expect($origins)->toHaveKey($key, $tool['url']);
+    }
+    expect($origins)->toHaveKey('alvarocdev', config('nexo-ecosystem.author_url'));
+});
+
+it('AC-BEACON-5: preflights never spend the beacon budget, and the 429 is readable cross-origin', function () {
+    config(['nexo.beacon.rate_limit' => 2]);
+    $preflight = ['HTTP_ORIGIN' => ALLOWED_HOST, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'POST'];
+
+    for ($i = 0; $i < 5; $i++) {
+        expect($this->call('OPTIONS', '/beacon', [], [], [], $preflight)->getStatusCode())->toBe(204);
+    }
+
+    $post = fn () => $this->withHeader('Origin', ALLOWED_HOST)->postJson('/beacon', ['origin' => ALLOWED_ORIGIN, 'path' => '/x']);
+    $post()->assertNoContent();
+    $post()->assertNoContent();
+    $post()->assertStatus(429)->assertHeader('Access-Control-Allow-Origin', ALLOWED_HOST);
+
+    expect(BeaconEvent::query()->count())->toBe(2);
 });
 
 it('AC-BEACON-7: never sets a cookie and the table has no ip/ua columns', function () {

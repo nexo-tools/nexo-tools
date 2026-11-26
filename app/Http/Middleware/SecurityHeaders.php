@@ -56,6 +56,15 @@ class SecurityHeaders
         $style = "'self' 'unsafe-inline'";
         $connect = "'self'";
 
+        // The beacon's hub (templates/nexo-ui/beacon). Here the hub is this
+        // same app and the endpoint is relative ('/beacon'), so 'self' covers
+        // it; an absolute NEXO_BEACON_ENDPOINT on another origin is allowed by
+        // that origin, never by a fixed host (BeaconClientTest). Mirror in
+        // public/.htaccess, which carries the production value ('self').
+        if (($hub = $this->beaconOrigin()) !== null) {
+            $connect .= " {$hub}";
+        }
+
         // Allow the Vite dev server (and its websocket) while running HMR locally.
         if ($dev = $this->viteDevServer()) {
             $script .= " {$dev}";
@@ -101,6 +110,21 @@ class SecurityHeaders
         $origin = ($parts['scheme'] ?? 'https').'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '');
 
         return "'self' {$origin}";
+    }
+
+    /** scheme://host[:port] of an absolute beacon endpoint on another origin, or null. */
+    private function beaconOrigin(): ?string
+    {
+        $parts = parse_url((string) config('nexo.beacon.endpoint', ''));
+
+        if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])
+            || ! in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {
+            return null;
+        }
+
+        $origin = strtolower($parts['scheme'].'://'.$parts['host']).(isset($parts['port']) ? ':'.$parts['port'] : '');
+
+        return $origin === rtrim(strtolower((string) url('/')), '/') ? null : $origin;
     }
 
     private function viteDevServer(): ?string

@@ -19,15 +19,12 @@ it('AC-BEACON-8: renders no emitter metas when the beacon is off (default/standa
         ->assertDontSee('nexo:beacon-origin', false);
 });
 
-it('AC-BEACON-8: the shareable snippet respects Do Not Track and uses sendBeacon on pageload', function () {
-    $source = file_get_contents(resource_path('js/nexo-beacon.js'));
-
-    expect($source)
-        ->toContain('doNotTrack')            // honours DNT
-        ->toContain('globalPrivacyControl')  // honours GPC
-        ->toContain('sendBeacon')            // non-blocking send
-        ->toContain("event: 'pageview'");    // documented payload shape
-
-    // And it is wired into the app bundle as the nexotools reference.
+it('AC-BEACON-8: the shareable snippet is the nexo-ui template one, wired into the app bundle', function () {
+    // The send contract itself (fetch, credentials omit, keepalive, no
+    // preflight) is pinned by the template guardian Nexo/BeaconClientTest; the
+    // file is a byte-for-byte copy of templates/nexo-ui/beacon/nexo-beacon.js.
+    expect(file_get_contents(resource_path('js/nexo-beacon.js')))
+        ->toContain('doNotTrack')
+        ->toContain("event: 'pageview'");
     expect(file_get_contents(resource_path('js/app.js')))->toContain('nexo-beacon.js');
 });

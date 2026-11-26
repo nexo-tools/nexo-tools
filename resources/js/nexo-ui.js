@@ -1,5 +1,6 @@
-// Alpine components for the Nexo shared chrome. Import this once in the tool's
-// app.js (before Alpine.start()); it registers on `alpine:init`.
+// Alpine components for the Nexo shared chrome, plus the `data-confirm` handler
+// (at the end). Import this once in the tool's app.js (before Alpine.start());
+// the components register on `alpine:init`.
 //
 //   import './nexo-ui.js';   // then Alpine.start()
 //
@@ -135,3 +136,39 @@ document.addEventListener('alpine:init', () => {
     },
   }));
 });
+
+// Confirmation before a destructive action, with no inline handler (v2.1). The
+// CSP allows scripts by hash and never 'unsafe-inline', so the browser drops an
+// onsubmit="return confirm(…)" without a word: in Nexo Events four of them
+// («Cancelar evento», «Liberar el cupo», «Quitar acceso», «Revocar») submitted
+// without asking. NoInlineHandlersTest keeps them out of the views.
+//
+//   <form method="POST" data-confirm="¿Borrar este link?">    the whole form
+//   <button type="submit" data-confirm="…">                    only this submitter
+//   <a href="…" data-confirm="…">                              following a link
+//
+// A submitter's own data-confirm wins over its form's. Listened on document in
+// the capture phase, so it runs before any other submit or click handler (an
+// app's double-submit guard, an Alpine @submit); a declined confirmation cancels
+// the default AND stops the event there, so nothing else acts on it.
+// Ported from Nexo Events (resources/js/app.js): an app that had its own copy
+// drops it when it imports this file, or every confirmation would ask twice.
+(() => {
+  const decline = (event, message) => {
+    if (!message || window.confirm(message)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+
+  document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    const submitter = event.submitter instanceof HTMLElement ? event.submitter : null;
+    decline(event, submitter?.dataset.confirm || form.dataset.confirm);
+  }, true);
+
+  document.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest('a[data-confirm]') : null;
+    if (link) decline(event, link.dataset.confirm);
+  }, true);
+})();
