@@ -9,9 +9,6 @@
 <x-guest-layout :title="__('Sign in')">
     <div class="mb-6">
         <h1 class="text-xl font-semibold">{{ __('Sign in to your account') }}</h1>
-        @if ($ssoFirst)
-            <p class="mt-2 text-sm text-muted" data-nexo-id-explainer>{{ __('Nexo ID is your one account for every Nexo tool: sign in once and they all open.') }}</p>
-        @endif
     </div>
 
     {{-- transition: while «I already have an account with another email»

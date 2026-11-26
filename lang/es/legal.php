@@ -29,7 +29,7 @@ return [
             ],
             [
                 'h' => 'Qué guardamos de tu cuenta',
-                'p' => 'Solo si decidís crear una: nombre, email y una versión cifrada (hash) de la contraseña. El email se usa para identificarte al entrar y para mandarte el enlace de recuperación si olvidás la clave. No pedimos teléfono, dirección ni datos de pago: el hub no cobra nada.',
+                'p' => 'Solo si decides crear una: nombre, email y una versión cifrada (hash) de la contraseña. El email se usa para identificarte al entrar y para mandarte el enlace de recuperación si olvidas la clave. No pedimos teléfono, dirección ni datos de pago: el hub no cobra nada.',
             ],
             [
                 'h' => 'Tu panel "tus herramientas"',
@@ -68,7 +68,7 @@ return [
 
     'terms' => [
         'title' => 'Términos de uso',
-        'intro' => 'Al usar esta instancia de Nexo Tools aceptás lo que sigue. Es un servicio gratuito, ofrecido tal cual está.',
+        'intro' => 'Al usar esta instancia de Nexo Tools aceptas lo que sigue. Es un servicio gratuito, ofrecido tal cual está.',
         'sections' => [
             [
                 'h' => 'Qué es el servicio',
