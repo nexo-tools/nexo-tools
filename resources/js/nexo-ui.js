@@ -62,7 +62,7 @@ document.addEventListener('alpine:init', () => {
     init() {
       if (!this.modal) return;
       this.onWindowKeydown = (event) => {
-        if (this.open && !this.$el.contains(event.target)) this.onKeydown(event);
+        if (this.open && !this.$root.contains(event.target)) this.onKeydown(event);
       };
       this.onPageHide = () => this.close({ restoreFocus: false });
       window.addEventListener('keydown', this.onWindowKeydown);
@@ -73,14 +73,36 @@ document.addEventListener('alpine:init', () => {
       window.removeEventListener('keydown', this.onWindowKeydown);
       window.removeEventListener('pagehide', this.onPageHide);
     },
+    // `$root`, never `$el`, here and in items(): toggle() runs from the
+    // trigger's @click, where `this.$el` is the trigger itself — it holds no
+    // items, so opening a menu (by keyboard or by click) focused nothing, and
+    // the next Tab closed it again. `$root` is the component's element from
+    // wherever it is called.
     trigger() {
-      return this.$refs.trigger || this.$el.querySelector('[aria-haspopup]');
+      return this.$refs.trigger || this.$root.querySelector('[aria-haspopup]');
     },
     toggle() {
       if (this.open) { this.close(); return; }
       this.open = true;
       if (this.modal) document.documentElement.classList.add('nexo-sheet-open');
-      this.$nextTick(() => this.focusItem(0));
+      this.$nextTick(() => this.focusFirst());
+    },
+    // The first item takes the focus as soon as it is shown. A menu (x-show
+    // with x-transition) is shown by the next tick; the sheet (x-show with no
+    // transition) is not: Alpine reveals it on a later frame (or a timeout in
+    // a hidden tab), and WebKit runs that after $nextTick. Until then its items
+    // have no client rects, there is nothing to focus, and the aria-modal sheet
+    // opened with the focus left outside it (on the trigger in Chromium, on
+    // <body> in WebKit). So it retries, bounded, until something is visible;
+    // closing in between stops it.
+    focusFirst(attempts = 10) {
+      if (!this.open) return;
+      if (this.items().length) { this.focusItem(0); return; }
+      if (attempts <= 0) return;
+      const later = document.visibilityState === 'visible'
+        ? (fn) => requestAnimationFrame(fn)
+        : (fn) => setTimeout(fn, 16);
+      later(() => this.focusFirst(attempts - 1));
     },
     close({ restoreFocus = true } = {}) {
       if (!this.open) return;
@@ -89,7 +111,7 @@ document.addEventListener('alpine:init', () => {
       if (restoreFocus) this.trigger()?.focus();
     },
     items() {
-      const root = this.modal ? (this.$refs.panel || this.$el) : this.$el;
+      const root = this.modal ? (this.$refs.panel || this.$root) : this.$root;
       const selector = this.modal
         ? 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
         : '[role="menuitem"]';

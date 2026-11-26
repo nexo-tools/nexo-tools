@@ -147,6 +147,22 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
 
 ## Accumulated context
 
+- **2026-11-26** — **nexo-ui v2.2** (experiencia unificada F3, tanda 3; the hub stays the template's
+  reference consumer). `nexo-ui.js` replaces the four per-app variants of `nexoMenu`: `trigger()` and
+  `items()` search from `$root` (from the button's `@click`, `$el` is the button, so opening a menu
+  focused nothing), and `focusFirst()` retries for up to 10 frames until the panel is shown (the
+  sheet has no transition and WebKit revealed it after `$nextTick`, leaving the focus outside the
+  aria-modal dialog). **«Crear cuenta» comes back to the tool:** in sso/transition
+  `NexoChrome::signUpUrl()` is `/auth/nexo/enter?to=/app&signup=1` (the sso-client v2.2 asks Nexo ID
+  for `prompt=create`; this hub's v2.1 client ignores `signup` and goes through Nexo ID's login,
+  which degrades well), in local the local `/register` unless `nexo.allow_registration` is false.
+  Also from the template: the optional own account page in the menu and the sheet
+  (`nexo.chrome.account_route`, unused here), Privacidad/Términos in `<x-nexo-public-footer>`,
+  `<x-nexo-sign-in-options :password-open>`, and `GlossaryTest` ignoring code in `:x="…"`
+  attributes. `HomeTest` and `AuthModeTest` now expect the new sign-up URL. Browser matrix
+  (Chromium and WebKit, 320/390/1280, light/dark, guest/signed, against the mock provider): 1173/1173
+  per engine; with the old `nexo-ui.js` the same run fails 220 checks in Chromium. 466 → 476 tests
+  (one skipped, as before).
 - **2026-11-26** — **Session v2.1 + the D7 launcher** (experiencia unificada F3, tanda 2; contract
   in `alvaro/inbox/experiencia-unificada/CONTRATO-F3.md`). The `nexo-sso-client` v2.1 template is
   ported whole: Nexo ID now controls the hub's session (back-channel logout into

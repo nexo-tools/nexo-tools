@@ -63,7 +63,8 @@ it('explains Nexo ID on the sso login, with «Continuar con Nexo ID» and «Crea
     expect($html)
         ->toContain('data-nexo-id-explainer>'.__('Nexo ID is your one account for every Nexo tool: sign in once and they all open.'))
         ->toContain('data-nexo-sso-primary')
-        ->toContain('href="https://id.example.test/register" data-nexo-sign-up>')
+        // nexo-ui v2.2: «Crear cuenta» signs up through the hub and comes back to /app.
+        ->toContain('href="'.e(route('nexo-sso.enter', ['to' => '/app', 'signup' => 1])).'" data-nexo-sign-up>')
         ->not->toContain('name="password"')
         ->not->toContain('action="'.route('login').'"')
         ->not->toContain(route('password.request'));

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Route;
 
 it('shows the ecosystem hub with every tool', function () {
     $this->get('/')
@@ -47,13 +46,14 @@ it('sends the hero\'s sign-up and sign-in where the auth mode says', function (s
 
     $html = $this->get('/')->assertOk()->getContent();
 
-    expect(substr_count($html, 'href="'.$signUp.'">'.__('Create your account')))->toBe(2)
+    expect(substr_count($html, 'href="'.e($signUp).'">'.__('Create your account')))->toBe(2)
         ->and(str_contains($html, 'href="'.$signIn.'">'.__('Sign in')))->toBeTrue();
 })->with([
     'local' => fn () => ['local', route('register'), route('login')],
-    'transition' => fn () => ['transition', 'https://id.example.test/register', route('login')],
-    // In sso, the entry route of session v2 once it is in, the authorize until then.
-    'sso' => fn () => ['sso', 'https://id.example.test/register', route(Route::has('nexo-sso.enter') ? 'nexo-sso.enter' : 'nexo-sso.redirect')],
+    // nexo-ui v2.2: outside local, the sign-up goes through the entry route and
+    // comes back to /app signed in (it no longer strands the person in Nexo ID).
+    'transition' => fn () => ['transition', route('nexo-sso.enter', ['to' => '/app', 'signup' => 1]), route('login')],
+    'sso' => fn () => ['sso', route('nexo-sso.enter', ['to' => '/app', 'signup' => 1]), route('nexo-sso.enter')],
 ]);
 
 it('leads a signed-in person into «Tus herramientas» instead of offering to sign in', function () {
