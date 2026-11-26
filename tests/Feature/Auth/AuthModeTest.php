@@ -132,10 +132,12 @@ it('lands on «Tus herramientas» when the entry has nowhere else to go', functi
 
 // ---- transition --------------------------------------------------------------
 
-it('sends the old «Create account» to Nexo ID\'s sign-up in transition, and refuses the local POST', function () {
+it('sends the old «Create account» to Nexo ID\'s sign-up in transition, back to the launcher, and refuses the local POST', function () {
     hubAuthMode('transition');
 
-    $this->get('/register')->assertRedirect('https://id.example.test/register');
+    // nexo-sso-client v2.2: through enter?signup=1 (prompt=create), so the new
+    // account comes back to the hub instead of staying in Nexo ID.
+    $this->get('/register')->assertRedirect(route('nexo-sso.enter', ['to' => '/app', 'signup' => 1]));
     $this->post('/register', ['name' => 'Ana', 'email' => 'ana@example.test'])->assertNotFound();
 });
 

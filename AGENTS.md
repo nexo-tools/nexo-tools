@@ -147,6 +147,24 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
 
 ## Accumulated context
 
+- **2026-11-26** — **nexo-sso-client v2.2** (experiencia unificada F3, tanda 3). Copied whole from
+  `alvaro/templates/nexo-sso-client/` (byte-identical outside `config/nexo-sso.php` — `home` =
+  `/app`, `fallback` in the silent exclusions —, `NexoSsoUserResolver::linked()` and the layout of
+  the three `resources/views/nexo-sso/*` screens). «Crear cuenta» now comes back to the hub: in
+  sso/transition `NexoChrome::signUpUrl()` is `/auth/nexo/enter?to=/app&signup=1`, which asks Nexo
+  ID for `prompt=create` and gives the flow an hour (sign-up + verification mail); an old `GET
+  /register` in transition goes there too. The AC-LINK-4 refusal says what to do (write to
+  `NEXO_SUPPORT_EMAIL`, or sign in with that Nexo ID), and «¿Primera vez?»/«¿Unir esta cuenta?»
+  name the tool by the chrome brand (`NexoSsoApp`). The login passes
+  `:password-open="NexoSsoNewAccount::awaitsPasswordSignIn(request())"`, so after «Ya tengo una
+  cuenta con otro email» the password fold starts open (`LoginPasswordFoldTest`). The
+  `NexoIdLinked` mail follows the README's reference text: «Nexo ID confirmó que ese correo es
+  tuyo» instead of «el proveedor de identidad», «unir» in Spanish (subject «Tu cuenta quedó unida a
+  Nexo ID»), the password lines only in local mode (`AccountNoticesTest`). `LoginRequest` already
+  dropped `remember` outside local mode (`AuthModeTest`, mutation-checked). Also back to the
+  template's bytes: `theme-init` (comment), `nexo-seo`, `StaticPagesTest` and
+  `DarkModeCoverageTest` (the hub does render mail views now; the template's carve-out is right).
+  549 tests (+1 skipped).
 - **2026-11-26** — **nexo-ui v2.2** (experiencia unificada F3, tanda 3; the hub stays the template's
   reference consumer). `nexo-ui.js` replaces the four per-app variants of `nexoMenu`: `trigger()` and
   `items()` search from `$root` (from the button's `@click`, `$el` is the button, so opening a menu

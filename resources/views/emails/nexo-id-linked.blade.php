@@ -1,4 +1,5 @@
-{{-- Sent by the tool where the link happened, never by the identity provider. --}}
+{{-- Sent by the tool where the link happened, never by Nexo ID. Reference text:
+     templates/nexo-sso-client/README.md «The "Nexo ID was linked" mail». --}}
 <x-nexo-mail::layout :title="__('Nexo ID was linked to your account')" :preheader="__('Nexo ID was linked to your account')">
     <h1 class="nexo-ink" style="margin:0 0 16px; font-size:20px; line-height:1.3; font-weight:700; color:#18181b;">
         {{ __('Nexo ID was linked to your account') }}
@@ -18,11 +19,11 @@
         @if ($passwords)
             {{ $explicit
                 ? __('If you did not do this, change your password and write to us: someone who knew your password signed in here and linked the account.')
-                : __('If you did not do this, change your password and write to us: your email address was verified by the identity provider, so someone with access to it linked the account.') }}
+                : __('If you did not do this, change your password and write to us: Nexo ID confirmed that this email address is yours, so someone with access to it linked the account.') }}
         @else
             {{ $explicit
                 ? __('If you did not do this, write to us: someone who knew your password signed in here and linked the account.')
-                : __('If you did not do this, write to us: your email address was verified by the identity provider, so someone with access to it linked the account.') }}
+                : __('If you did not do this, write to us: Nexo ID confirmed that this email address is yours, so someone with access to it linked the account.') }}
         @endif
     </p>
 </x-nexo-mail::layout>

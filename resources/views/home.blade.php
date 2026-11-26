@@ -26,7 +26,8 @@
 
     // The hero's two doors go where the header's do (chrome v2): with
     // NEXO_AUTH_MODE=sso or transition, «Create your account» is Nexo ID's
-    // sign-up and «Sign in» enters through Nexo ID — the local /register and
+    // sign-up that comes back to /app (NexoChrome::signUpUrl(), v2.2) and
+    // «Sign in» enters through Nexo ID — the local /register and
     // /login are closed there. With a session there is nothing to sign in to:
     // the doors lead into «Tus herramientas» instead (H-nexotools-10).
     $signUpUrl = \App\Support\NexoChrome::signUpUrl() ?? url('/');

@@ -22,7 +22,9 @@
         <p class="nexo-flash mb-4" role="status">{{ session('status') }}</p>
     @endif
 
-    <x-nexo-sign-in-options>
+    {{-- transition: after «I already have an account with another email» the
+         person came to type a password, so the fold starts open (v2.2). --}}
+    <x-nexo-sign-in-options :password-open="\App\Services\NexoSso\NexoSsoNewAccount::awaitsPasswordSignIn(request())">
         <form method="POST" action="{{ route('login') }}" class="space-y-4"
               x-data="{ sending: false }" @submit="$nextTick(() => sending = true)">
             @csrf
