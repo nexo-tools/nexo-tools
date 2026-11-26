@@ -161,6 +161,24 @@ it('lists the app\'s own account page right after «Tu panel», only when the ap
     expect(str_contains(Blade::render('<x-nexo-account-menu />'), 'data-nexo-account-app'))->toBeFalse('A route that does not exist must not render.');
 });
 
+it('leaves the own account page out while the app has no label for it', function () {
+    // The route alone is not enough: without lang nexo.app.account the item
+    // would read «nexo.app.account». An app that ships the label has nothing
+    // to prove here.
+    if (Lang::has('nexo.app.account')) {
+        test()->markTestSkipped('This app ships nexo.app.account.');
+    }
+
+    config()->set('nexo-sso.enabled', true);
+    accountMenuSignIn();
+    Route::get('/nexo-guardian-account', fn () => 'account')->name('nexo-guardian.account');
+    Route::getRoutes()->refreshNameLookups();
+    config()->set('nexo.chrome.account_route', 'nexo-guardian.account');
+
+    expect(NexoChrome::appAccountUrl())->toBeNull();
+    expect(str_contains(Blade::render('<x-nexo-account-menu />'), 'data-nexo-account-app'))->toBeFalse('An own account page without its label must not render.');
+});
+
 it('renders nothing for a guest', function () {
     expect(trim(Blade::render('<x-nexo-account-menu />')))->toBe('');
 });

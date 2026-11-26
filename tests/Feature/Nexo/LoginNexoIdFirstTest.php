@@ -138,7 +138,7 @@ it('sends «Iniciar sesión» and «Crear cuenta» where the mode says', functio
     // open); outside it, Nexo ID's sign-up THROUGH this tool (v2.2), so the
     // person comes back here signed in — see the next test.
     if ($mode === 'local') {
-        $open = filter_var(config('nexo.allow_registration', true), FILTER_VALIDATE_BOOLEAN);
+        $open = (bool) config('nexo.allow_registration', true);
         expect(NexoChrome::signUpUrl())->toBe($open && Route::has('register') ? route('register') : null, 'In local mode «Crear cuenta» is the local sign-up.');
     } else {
         loginNexoIdFirstAssertSignUpComesBack($mode);
@@ -211,6 +211,13 @@ it('keeps «Crear cuenta» away from a closed local sign-up', function () {
     config()->set('nexo.allow_registration', false);
     expect(NexoChrome::signUpUrl())->toBeNull('With the local sign-up closed, «Crear cuenta» must not link a 404.');
 
+    // Read like the gate reads it, `(bool)`: an empty or null value closes it
+    // there, so it must not leave a «Crear cuenta» pointing at the 404 here.
+    foreach (['', null, '0'] as $closed) {
+        config()->set('nexo.allow_registration', $closed);
+        expect(NexoChrome::signUpUrl())->toBeNull('nexo.allow_registration = '.var_export($closed, true).' closes the sign-up.');
+    }
+
     config()->set('nexo.allow_registration', true);
     expect(NexoChrome::signUpUrl())->toBe(Route::has('register') ? route('register') : null);
 });
@@ -219,9 +226,11 @@ it('only ever sends «Crear cuenta» back to a path of this app', function () {
     loginNexoIdFirstSkipWithoutSso();
     loginNexoIdFirstMode('sso');
 
-    foreach (['https://evil.example/', '//evil.example/x', '/\\evil.example', 'app', ''] as $home) {
+    // "/\t/evil.example" is "//evil.example" to a browser (it drops tabs and
+    // newlines from a URL); /auth/nexo/* would loop through the entry route.
+    foreach (['https://evil.example/', '//evil.example/x', '/\\evil.example', "/\t/evil.example", "/\n/evil.example", '/auth/nexo/enter', 'app', ''] as $home) {
         config()->set('nexo-sso.home', $home);
-        expect(NexoChrome::ssoHome())->toBe('/', "nexo-sso.home = [{$home}] must fall back to '/'.");
+        expect(NexoChrome::ssoHome())->toBe('/', 'nexo-sso.home = '.json_encode($home).' must fall back to \'/\'.');
     }
 
     config()->set('nexo-sso.home', '/somewhere/inside');
@@ -289,6 +298,7 @@ it('opens the transition fold from the start when the login view asks for it', f
 
     expect($fold(''))->not->toMatch('/\sopen\b/', 'The fold starts closed by default.');
     expect($fold(':password-open="false"'))->not->toMatch('/\sopen\b/');
+    expect($fold('password-open="false"'))->not->toMatch('/\sopen\b/', 'A plain password-open="false" is text, and it means closed.');
     expect($fold(':password-open="true"'))->toMatch('/\sopen\b/', 'password-open must open the fold.');
 
     // Nowhere else does it change anything: local is never folded, sso has no form.

@@ -7,6 +7,10 @@
 // The head theme-init snippet (partials/theme-init.blade.php) must run first so
 // <html data-theme> is always stamped before Alpine reads it.
 
+// What Tab can reach: the sheet's focus trap cycles through these, and a menu
+// left with Tab hands the focus to the next one after it.
+const TABBABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 document.addEventListener('alpine:init', () => {
   // Light/dark toggle. The explicit choice persists in the `nexo-theme` cookie,
   // scoped to the parent domain so it crosses every ecosystem tool (dark in one =
@@ -41,7 +45,8 @@ document.addEventListener('alpine:init', () => {
   // and Escape; the trigger owns aria-expanded.
   //
   // The panels declare role="menu"/"menuitem", and that role is a promise: arrow
-  // navigation, Home/End, and focus returning to the trigger on close. Without
+  // navigation, Home/End, Tab moving on past the menu (Shift+Tab, back to the
+  // trigger), and focus returning to the trigger on close. Without
   // it a screen-reader user is told to press arrows and nothing happens.
   // Wire it up with:  x-data="nexoMenu" @keydown="onKeydown($event)"
   //
@@ -112,9 +117,7 @@ document.addEventListener('alpine:init', () => {
     },
     items() {
       const root = this.modal ? (this.$refs.panel || this.$root) : this.$root;
-      const selector = this.modal
-        ? 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        : '[role="menuitem"]';
+      const selector = this.modal ? TABBABLE : '[role="menuitem"]';
       return Array.from(root.querySelectorAll(selector))
         .filter((el) => !el.hasAttribute('disabled') && el.getClientRects().length > 0);
     },
@@ -148,13 +151,26 @@ document.addEventListener('alpine:init', () => {
         ArrowUp: () => this.moveFocus(-1),
         Home: () => this.focusItem(0),
         End: () => this.focusItem(this.items().length - 1),
-        // Tabbing out of a menu closes it, but the browser keeps the focus move.
-        Tab: () => this.close({ restoreFocus: false }),
+        Tab: () => this.tabOut(event.shiftKey),
       };
       const handler = handlers[event.key];
       if (!handler) return;
-      if (event.key !== 'Tab') event.preventDefault();
+      event.preventDefault();
       handler();
+    },
+    // Tab leaves an open menu (v2.2): it closes, and the focus goes on to what
+    // follows the menu on the page; Shift+Tab, back to its button. Not the
+    // browser's own move: from an item it lands on the next item of a panel
+    // that x-transition keeps on screen a few more frames, which then hides,
+    // and the focus fell to <body> (Chromium, and WebKit on Shift+Tab).
+    tabOut(backwards) {
+      this.close({ restoreFocus: backwards });
+      if (backwards) return;
+      const root = this.$root;
+      const next = Array.from(document.querySelectorAll(TABBABLE)).find((el) => !root.contains(el)
+        && (root.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
+        && el.tabIndex >= 0 && el.getClientRects().length > 0);
+      (next || this.trigger())?.focus();
     },
   }));
 });

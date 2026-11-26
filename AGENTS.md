@@ -163,6 +163,13 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
   (Chromium and WebKit, 320/390/1280, light/dark, guest/signed, against the mock provider): 1173/1173
   per engine; with the old `nexo-ui.js` the same run fails 220 checks in Chromium. 466 → 476 tests
   (one skipped, as before).
+  **Adversarial review, same day:** Tab out of an open menu left the focus on `<body>` (the browser
+  moved it into the panel x-transition was still showing); `tabOut()` now closes it and focuses
+  the next control after the menu, Shift+Tab the trigger. The switcher's hub and code links are
+  menu items (the arrows reach them) at 44 px (were 19 px). `signUpUrl()` reads
+  `nexo.allow_registration` with `(bool)` like the gate that closes the route, and `ssoHome()`
+  asks the sso-client's `NexoSsoRequest::home()`. 478 tests (+1 skipped); 23/23 mutations killed;
+  browser 1173/1173 + 207/207 per engine.
 - **2026-11-26** — **Session v2.1 + the D7 launcher** (experiencia unificada F3, tanda 2; contract
   in `alvaro/inbox/experiencia-unificada/CONTRATO-F3.md`). The `nexo-sso-client` v2.1 template is
   ported whole: Nexo ID now controls the hub's session (back-channel logout into

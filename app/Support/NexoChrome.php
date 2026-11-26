@@ -275,8 +275,10 @@ final class NexoChrome
             }
         }
 
-        $open = config('nexo.allow_registration', true);
-        if ($open !== null && ! filter_var($open, FILTER_VALIDATE_BOOLEAN)) {
+        // The same reading as the gate that closes the route (nexoshort's
+        // EnsureRegistrationOpen: `(bool) config(…)`), so the link and the
+        // route never disagree; an app without the key keeps it open.
+        if (! (bool) config('nexo.allow_registration', true)) {
             return null;
         }
 
@@ -286,13 +288,21 @@ final class NexoChrome
     /**
      * Where this app sends a person once signed in through Nexo ID
      * (`nexo-sso.home`, the sso-client's adaptation point): a same-origin path,
-     * '/' otherwise. The entry route validates `to` again on its side.
+     * '/' otherwise. With session v2 ported the sso-client answers
+     * (NexoSsoRequest::home(), the same check its entry route applies to `to`);
+     * until then the same rule, minus the /auth/nexo/* exclusion.
      */
     public static function ssoHome(): string
     {
+        $owner = 'App\\Services\\NexoSso\\NexoSsoRequest';
+        if (class_exists($owner)) {
+            return (string) $owner::home();
+        }
+
         $home = config('nexo-sso.home', '/');
 
-        return is_string($home) && str_starts_with($home, '/') && ! str_starts_with($home, '//') && ! str_contains($home, '\\')
+        return is_string($home) && str_starts_with($home, '/') && ! str_starts_with($home, '//')
+            && ! str_contains($home, '\\') && preg_match('/[\x00-\x1F\x7F]/', $home) !== 1
             ? $home
             : '/';
     }

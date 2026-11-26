@@ -135,8 +135,9 @@ it('moves the focus inside a menu or the sheet as soon as it opens', function ()
     //     left the focus outside the aria-modal sheet.
     $js = (string) file_get_contents(resource_path('js/nexo-ui.js'));
 
-    expect(str_contains($js, '$el.querySelector') || str_contains($js, ': this.$el;'))
-        ->toBeFalse('nexo-ui.js searches the menu from $el: from the trigger\'s @click that is the button, and the focus never enters the menu.');
+    $code = (string) preg_replace('~^\s*//.*$~m', '', $js); // the comments may name $el
+    expect(preg_match('/\$el\b/', $code))
+        ->toBe(0, 'nexo-ui.js searches the menu from $el: from the trigger\'s @click that is the button, and the focus never enters the menu.');
     expect(substr_count($js, 'this.$root'))->toBeGreaterThanOrEqual(3, 'nexoMenu must find its trigger and items from $root.');
     expect(preg_match('/toggle\(\)\s*\{.*?\$nextTick\(\(\) => this\.focusFirst\(\)\)/s', $js))
         ->toBe(1, 'Opening a menu must hand the first focus to focusFirst(), which waits until the panel is shown.');
@@ -145,6 +146,25 @@ it('moves the focus inside a menu or the sheet as soon as it opens', function ()
     expect(str_contains($focus[2], 'if (!this.open) return;'))->toBeTrue('focusFirst() must stop when the menu closed in between.');
     expect(str_contains($focus[2], 'requestAnimationFrame') && str_contains($focus[2], 'attempts - 1'))
         ->toBeTrue('focusFirst() must retry on the next frame, bounded.');
+});
+
+it('lets Tab leave an open menu for the next control, never for <body>', function () {
+    // v2.2, seen in Chromium and WebKit: the browser's own Tab from a menu item
+    // lands on the next item of a panel that x-transition keeps on screen a few
+    // frames, which then hides, and the focus fell to <body>. nexoMenu takes
+    // the move: Tab closes the menu and focuses what follows it on the page,
+    // Shift+Tab goes back to the trigger. The sheet keeps its own trap.
+    $js = (string) file_get_contents(resource_path('js/nexo-ui.js'));
+
+    expect(preg_match('/Tab: \(\) => this\.tabOut\(event\.shiftKey\)/', $js))
+        ->toBe(1, 'A menu must hand Tab to tabOut(), not let the browser move the focus.');
+    expect(preg_match('/const handler = handlers\[event\.key\];\s*if \(!handler\) return;\s*event\.preventDefault\(\);\s*handler\(\);/', $js))
+        ->toBe(1, 'Every key a menu handles, Tab included, must cancel the browser\'s own move.');
+    expect(preg_match('/tabOut\(backwards\)\s*\{(.*?)\n    \},/s', $js, $tab))->toBe(1, 'nexo-ui.js has no tabOut().');
+    expect(str_contains($tab[1], 'this.close({ restoreFocus: backwards })'))
+        ->toBeTrue('Shift+Tab out of a menu must return to its trigger.');
+    expect(str_contains($tab[1], '!root.contains(el)') && str_contains($tab[1], 'DOCUMENT_POSITION_FOLLOWING') && str_contains($tab[1], 'getClientRects().length > 0'))
+        ->toBeTrue('Tab out of a menu must focus the next visible control AFTER the menu, outside its panel.');
 });
 
 it('lists every language and the theme toggle inside the sheet', function () {
