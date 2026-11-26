@@ -75,7 +75,7 @@ it('sends a guest deep link through Nexo ID and back, never showing /login', fun
     $this->get('/app')->assertRedirect(route('nexo-sso.enter', ['to' => '/app']));
 });
 
-it('lets nobody in with an old local remember-me in sso mode', function () {
+it('closes an old password session in sso mode', function () {
     // The 2 local, unverified accounts of production can't sign in any more,
     // and that is the point (CONTRATO-F3 D2): a session Nexo ID doesn't govern
     // is closed and sent through Nexo ID.
@@ -84,6 +84,49 @@ it('lets nobody in with an old local remember-me in sso mode', function () {
 
     $this->actingAs($user)->get('/app')->assertRedirect(route('nexo-sso.enter', ['to' => '/app']));
     $this->assertGuest();
+});
+
+it('lets nobody in with an old local remember-me cookie in sso mode, and tells the browser to drop it', function () {
+    // A «Recordarme» issued by the hub before the deploy is a real cookie, not
+    // a session: the guard has to close what it signs in, every time, and the
+    // logout has to expire it — or each page would sign in and out again.
+    hubAuthMode('sso');
+    $user = User::factory()->create();
+    $user->forceFill(['remember_token' => 'remember-issued-before-the-deploy'])->save();
+    $recaller = Auth::guard('web')->getRecallerName();
+
+    $response = $this->withCookie($recaller, $user->id.'|remember-issued-before-the-deploy|'.$user->getAuthPassword())
+        ->get('/app');
+
+    $response->assertRedirect(route('nexo-sso.enter', ['to' => '/app']));
+    $this->assertGuest();
+
+    $cookie = collect($response->headers->getCookies())->first(fn ($c) => $c->getName() === $recaller);
+    expect($cookie)->not->toBeNull()
+        ->and($cookie->isCleared())->toBeTrue();
+
+    // And the token itself is rotated: that cookie can't sign in anywhere again.
+    expect($user->fresh()->getRememberToken())->not->toBe('remember-issued-before-the-deploy');
+
+    // Not vacuous: in local mode such a cookie does sign in.
+    Auth::forgetGuards();
+    hubAuthMode('local');
+    $other = User::factory()->create();
+    $other->forceFill(['remember_token' => 'remember-issued-before-the-deploy'])->save();
+    $this->withCookie($recaller, $other->id.'|remember-issued-before-the-deploy|'.$other->getAuthPassword())
+        ->get('/app')->assertOk();
+    $this->assertAuthenticatedAs($other);
+});
+
+it('lands on «Tus herramientas» when the entry has nowhere else to go', function () {
+    // config('nexo-sso.home') is this app's adaptation point: the panel is
+    // /app, not the template's '/'. A missing or hostile `to` falls back here.
+    hubAuthMode('local');
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get('/auth/nexo/enter')->assertRedirect('/app');
+    $this->actingAs($user)->get('/auth/nexo/enter?to='.urlencode('//evil.example/app'))->assertRedirect('/app');
+    $this->actingAs($user)->get('/auth/nexo/enter?to='.urlencode('https://evil.example/'))->assertRedirect('/app');
 });
 
 // ---- transition --------------------------------------------------------------

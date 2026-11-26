@@ -12,7 +12,11 @@
 
     <header class="mb-8">
         <h1 class="text-2xl font-bold tracking-tight">{{ __('nexo.app.panel') }}</h1>
-        <p class="mt-1 text-muted">{{ __('Open any Nexo tool: you go in with this same account.') }}</p>
+        {{-- «With this same account» is only true when the hub rides Nexo ID;
+             standalone, each tool opens as a visitor (NexoChrome::switcherHref). --}}
+        <p class="mt-1 text-muted" data-launcher-lead>{{ \App\Support\NexoChrome::ssoEnabled()
+            ? __('Open any Nexo tool: you go in with this same account.')
+            : __('Every Nexo tool, one click away.') }}</p>
     </header>
 
     <section class="mb-10 flex flex-wrap items-center gap-x-4 gap-y-4 rounded-2xl border border-line bg-surface-raised p-5 shadow-sm" data-launcher-identity

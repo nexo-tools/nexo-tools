@@ -78,7 +78,14 @@ it('opens the tools\' landings and offers no Nexo ID account when SSO is off', f
     $events = config('nexo-ecosystem.tools.nexoevents');
     expect($html)->toContain('href="'.rtrim($events['url'], '/').'" class="nexo-btn nexo-btn--primary nexo-btn--sm" data-launcher-open')
         ->and($html)->not->toContain('/auth/nexo/enter')
-        ->and($html)->not->toContain('data-launcher-nexo-id');
+        ->and($html)->not->toContain('data-launcher-nexo-id')
+        // …and it doesn't promise «this same account» it can't keep.
+        ->and($html)->toContain('data-launcher-lead>'.e(__('Every Nexo tool, one click away.')))
+        ->and($html)->not->toContain(e(__('Open any Nexo tool: you go in with this same account.')));
+
+    launcherSsoOn();
+    expect($this->actingAs($user)->get('/app')->getContent())
+        ->toContain('data-launcher-lead>'.e(__('Open any Nexo tool: you go in with this same account.')));
 });
 
 it('badges a tool that is not live yet instead of opening it', function () {
