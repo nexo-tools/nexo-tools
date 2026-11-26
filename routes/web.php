@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegalController;
+use App\Http\Middleware\EnsureLocalAuth;
 use App\Http\Middleware\EnsureNexoAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -57,30 +58,43 @@ Route::get('/robots.txt', function () {
     return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain']);
 })->name('robots');
 
-// v2 scaffolding: accounts (+ Nexo ID SSO by env) for "your tools". Unused by v1.
+// Accounts. Which local doors are open depends on the auth mode
+// (NEXO_AUTH_MODE, nexo-sso-client): EnsureLocalAuth answers 404 for the local
+// password login, registration and reset in `sso` — the hosted hub runs there
+// (CONTRATO-F3 D2) — and «Crear cuenta» goes to Nexo ID's sign-up instead. A
+// standalone install (SSO off) is always `local`: every door as before.
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store'])->middleware('throttle:10,1');
-
+    // The login page stays reachable in every mode: in sso it explains Nexo ID
+    // and hosts «Continuar con Nexo ID» (x-nexo-sign-in-options).
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:20,1');
+    Route::post('login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware([EnsureLocalAuth::class, 'throttle:20,1']);
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->middleware('throttle:5,1')->name('password.email');
+    Route::middleware(EnsureLocalAuth::class.':register')->group(function () {
+        Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+        Route::post('register', [RegisteredUserController::class, 'store'])->middleware('throttle:10,1');
+    });
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->middleware('throttle:5,1')->name('password.store');
+    Route::middleware(EnsureLocalAuth::class.':password')->group(function () {
+        Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+        Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+            ->middleware('throttle:5,1')->name('password.email');
+
+        Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+        Route::post('reset-password', [NewPasswordController::class, 'store'])
+            ->middleware('throttle:5,1')->name('password.store');
+    });
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-    // "Your tools" springboard (v2 dashboard): launch + curate ecosystem tools.
+    // «Tus herramientas» (D7): the light launcher — every tool of the registry,
+    // always, each opening its panel already signed in, plus the account. It
+    // used to be a springboard the person had to fill by hand; the user_tools
+    // table it wrote stays (no data is dropped), the launcher just no longer
+    // depends on it.
     Route::get('app', [SpringboardController::class, 'index'])->name('dashboard');
-    Route::post('app/tools', [SpringboardController::class, 'store'])->name('app.tools.store');
-    Route::delete('app/tools/{tool}', [SpringboardController::class, 'destroy'])->name('app.tools.destroy');
 });
 
 // Ecosystem metrics — gated by the Nexo ID sub allowlist (nexo.admin_subs).
@@ -89,7 +103,9 @@ Route::middleware(EnsureNexoAdmin::class)->group(function () {
     Route::get('admin', AdminDashboardController::class)->name('admin.dashboard');
 });
 
-// Nexo ID SSO client (no-op unless NEXO_SSO_ENABLED) — powers v2 "your tools".
+// Nexo ID SSO client (nexo-sso-client v2.1): no routes at all unless
+// NEXO_SSO_ENABLED. SetLocale already runs in the `web` group, so the
+// signed-out screen speaks the person's language.
 require __DIR__.'/nexo-sso.php';
 
 // Email verification. Not enforced as middleware on the panel: somebody who

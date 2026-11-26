@@ -9,15 +9,15 @@ return [
         ],
         [
             'q' => 'Is it free and open source?',
-            'a' => 'Yes. Every Nexo tool is free and open source: the code is published on GitHub and you can use them at no cost and with no fees.',
+            'a' => 'Yes. Every Nexo tool is free and its code is open: it is published on GitHub and you can use them at no cost and with no fees.',
         ],
         [
-            'q' => 'Can I self-host it?',
-            'a' => 'Yes. Each tool can be deployed on your own server pointing at your own database, and runs standalone without depending on the rest of the ecosystem.',
+            'q' => 'Can I install it on my own server?',
+            'a' => 'Yes. Each tool can be installed on your own server, with your own data, and works on its own, without depending on the rest of Nexo. The step by step is on GitHub.',
         ],
         [
             'q' => 'What is Nexo ID?',
-            'a' => 'Nexo ID is the ecosystem\'s single account: sign in once and use every Nexo tool. It is optional — each tool also works with its own local account.',
+            'a' => 'Nexo ID is the one account of Nexo: sign in once and you are in every tool. To get one, tap «Create account» in any of them.',
         ],
     ],
 ];

@@ -4,19 +4,20 @@
     // is a directory, so its sheet describes the ecosystem and the cookieless
     // metric it runs — never features that would compete with the tools' own
     // landings (ADR-001).
+    // Written for a person, not an engineer (H-nexotools-09): what happens to
+    // them, in their words. The technical detail lives in the help center and
+    // on GitHub; the comment next to each row names the code that keeps it true.
     $specs = [
         // App\Support\VisitorHash — app key + date + IP + user agent, none stored.
-        [__('Visitor metric'), __('Daily SHA-256 hash — nothing raw is stored, and days cannot be linked')],
+        [__('Visits'), __('We count visits without cookies and without keeping who you are')],
         // App\Http\Controllers\BeaconController: DNT / Sec-GPC short-circuit before any write.
-        [__('Do Not Track'), __('DNT=1 or Sec-GPC=1 → nothing is written')],
-        // BeaconController::accepted() — response('', 204).
-        [__('Beacon'), __('Always 204, no cookie and no session')],
+        [__('If you ask not to be tracked'), __('Your browser\'s «do not track» is respected: that visit is not counted')],
         // config/nexo.php derives the allowlist from the registry plus author_url.
-        [__('Accepted origins'), __('The registry\'s tools plus alvarocdev — a closed allowlist')],
-        // config/nexo-sso.php — env-gated, so a standalone install works untouched.
-        [__('One account'), __('Optional, through Nexo ID (OpenID Connect)')],
+        [__('Who counts here'), __('Only the Nexo tools — nobody else can send visits')],
+        // config/nexo-sso.php + NexoChrome: with Nexo ID on, sign-in and sign-up go there.
+        [__('One account'), __('Nexo ID: the same email and password open every Nexo tool')],
         // The generator's locales, plus the shared theme toggle.
-        [__('Languages and themes'), __('es · en · pt — light and dark')],
+        [__('Languages and themes'), __('Spanish, English and Portuguese — light and dark')],
     ];
 
     // The same answers the help center gives, in the same words — the landing
@@ -26,21 +27,27 @@
     // The hero's two doors go where the header's do (chrome v2): with
     // NEXO_AUTH_MODE=sso or transition, «Create your account» is Nexo ID's
     // sign-up and «Sign in» enters through Nexo ID — the local /register and
-    // /login are closed there.
-    $signUpUrl = \App\Support\NexoChrome::signUpUrl() ?? route('register');
-    $signInUrl = \App\Support\NexoChrome::signInUrl() ?? route('login');
+    // /login are closed there. With a session there is nothing to sign in to:
+    // the doors lead into «Tus herramientas» instead (H-nexotools-10).
+    $signUpUrl = \App\Support\NexoChrome::signUpUrl() ?? url('/');
+    $signInUrl = \App\Support\NexoChrome::signInUrl() ?? url('/');
+    $panelUrl = \App\Support\NexoChrome::panelUrl();
 @endphp
 
 <x-landing-layout :title="__('The open hub of the Nexo ecosystem.')"
-                  :description="__('The Nexo ecosystem hub: open-source, self-hostable tools with a single account.')">
+                  :description="__('The Nexo ecosystem hub: free, open-source tools with a single account.')">
 
     <section data-landing-section="hero">
         <div class="mx-auto max-w-4xl px-6">
             <h1 class="max-w-2xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{{ __('The open hub of the Nexo ecosystem.') }}</h1>
             <p class="mt-5 max-w-xl text-lg text-muted">{{ __('All the Nexo tools, one account.') }}</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-                <a class="nexo-btn nexo-btn--primary" href="{{ $signUpUrl }}">{{ __('Create your account') }}</a>
-                <a class="nexo-btn nexo-btn--ghost" href="{{ $signInUrl }}">{{ __('Sign in') }}</a>
+            <div class="mt-8 flex flex-wrap gap-3" data-hero-actions>
+                @auth
+                    <a class="nexo-btn nexo-btn--primary" href="{{ $panelUrl }}">{{ __('Go to your tools') }}</a>
+                @else
+                    <a class="nexo-btn nexo-btn--primary" href="{{ $signUpUrl }}">{{ __('Create your account') }}</a>
+                    <a class="nexo-btn nexo-btn--ghost" href="{{ $signInUrl }}">{{ __('Sign in') }}</a>
+                @endauth
             </div>
         </div>
     </section>
@@ -90,12 +97,12 @@
 
     <section data-landing-section="datos">
         <div class="mx-auto max-w-4xl px-6">
-            <h2 class="text-2xl font-semibold tracking-tight text-ink">{{ __('The numbers') }}</h2>
+            <h2 class="text-2xl font-semibold tracking-tight text-ink">{{ __('Your data') }}</h2>
             <dl class="mt-6 border-t border-line">
                 @foreach ($specs as [$term, $value])
                     <div class="flex flex-col gap-1 border-b border-line py-3 sm:flex-row sm:gap-6 sm:py-4">
                         <dt class="text-sm font-medium text-ink sm:w-56 sm:shrink-0">{{ $term }}</dt>
-                        <dd class="text-sm tabular-nums text-muted">{{ $value }}</dd>
+                        <dd class="text-sm text-muted">{{ $value }}</dd>
                     </div>
                 @endforeach
             </dl>
@@ -123,7 +130,11 @@
 
     <section data-landing-section="cierre">
         <div class="mx-auto max-w-4xl px-6">
-            <a class="nexo-btn nexo-btn--primary" href="{{ $signUpUrl }}">{{ __('Create your account') }}</a>
+            @auth
+                <a class="nexo-btn nexo-btn--primary" href="{{ $panelUrl }}">{{ __('Go to your tools') }}</a>
+            @else
+                <a class="nexo-btn nexo-btn--primary" href="{{ $signUpUrl }}">{{ __('Create your account') }}</a>
+            @endauth
         </div>
     </section>
 </x-landing-layout>

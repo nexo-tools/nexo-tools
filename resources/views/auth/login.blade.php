@@ -2,10 +2,21 @@
      on (x-nexo-sign-in-options, STANDARD «Login», LoginNexoIdFirstTest); the
      local form follows as the secondary way in, with a ghost submit so the
      screen has one violet button. The auth mode (NEXO_AUTH_MODE) decides
-     whether the local form shows, folds or disappears. --}}
+     whether the local form shows, folds or disappears: the hosted hub runs in
+     sso, where only Nexo ID is left — so the screen says in one line what
+     Nexo ID is (H-nexoshort-06, same here), next to «Crear cuenta». --}}
 @php($ssoFirst = \App\Support\NexoChrome::ssoSignInUrl() !== null)
 <x-guest-layout :title="__('Sign in')">
-    <h1 class="mb-6 text-xl font-semibold">{{ __('Sign in to your account') }}</h1>
+    <div class="mb-6">
+        <h1 class="text-xl font-semibold">{{ __('Sign in to your account') }}</h1>
+        @if ($ssoFirst)
+            <p class="mt-2 text-sm text-muted" data-nexo-id-explainer>{{ __('Nexo ID is your one account for every Nexo tool: sign in once and they all open.') }}</p>
+        @endif
+    </div>
+
+    {{-- transition: while «I already have an account with another email»
+         waits, says what this password sign-in leads to (nexo-sso-client). --}}
+    <x-nexo-sso.link-notice class="mb-4" />
 
     @if (session('status'))
         <p class="nexo-flash mb-4" role="status">{{ session('status') }}</p>

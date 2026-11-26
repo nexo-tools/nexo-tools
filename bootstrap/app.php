@@ -1,17 +1,19 @@
 <?php
 
 use App\Http\Middleware\NexoNoStore;
+use App\Http\Middleware\NexoSsoSessionGuard;
 use App\Http\Middleware\NexoSsoSilentLogin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
-use App\Mail\OperatorAlert;
+use App\Services\NexoSso\NexoAuthMode;
+use App\Services\NexoSso\NexoSsoStaleLogout;
+use App\Support\OperatorAlerts;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,7 +28,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetLocale::class,
             SecurityHeaders::class,
-            // Silent SSO trigger (prompt=none) — pass-through unless NEXO_SSO_ENABLED.
+            // Nexo ID controls the session (nexo-sso-client v2): back-channel
+            // revocations, the periodic prompt=none re-validation and, in sso
+            // mode, closing a session Nexo ID doesn't govern. Then the silent
+            // SSO trigger for guests. Both pass-through unless NEXO_SSO_ENABLED.
+            NexoSsoSessionGuard::class,
             NexoSsoSilentLogin::class,
             // no-store on everything with a session and on the auth screens, so
             // the back button never shows a signed-out person a private page.
@@ -37,6 +43,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // domain so they cross every ecosystem tool. Each tool has its own APP_KEY,
         // so they must stay UNencrypted to be readable across tools.
         $middleware->encryptCookies(except: ['nexo-lang', 'nexo-theme']);
+
+        // Where `auth` sends a guest. sso mode (NEXO_AUTH_MODE=sso): a deep link
+        // goes through Nexo ID and comes back to itself, never showing /login;
+        // a guest's «Cerrar sesión» goes to Nexo ID's hint-less end_session.
+        // Otherwise the login page, as before.
+        $middleware->redirectGuestsTo(fn (Request $request): string => NexoAuthMode::guestRedirectUrl($request));
 
         // Set TRUSTED_PROXIES in production (Cloudflare ranges, or '*' when the
         // origin is reachable ONLY through Cloudflare). Empty in local/dev.
@@ -51,29 +63,22 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // Something broke and nobody is watching: this ecosystem has no error
         // tracker by design (a third party observing users contradicts the
-        // product), so the operator hears about a 500 by mail. Deduped by
-        // exception identity for 15 minutes — a loop must not flood an inbox
-        // until its owner stops reading it. See templates/nexo-ops/README.md.
-        $exceptions->report(function (Throwable $e): void {
-            // Off unless the operator turned it on — which is also what keeps
-            // a suite quiet, since the flag is false in the testing env.
-            if (! config('nexo.ops_mail', false)) {
-                return;
-            }
-
-            $recipient = (string) config('nexo.support_email');
-            if ($recipient === '') {
-                return;
-            }
-
-            $key = 'ops-mail:'.sha1($e::class.'|'.$e->getFile().'|'.$e->getLine());
-            if (! Cache::add($key, true, now()->addMinutes(15))) {
-                return;
-            }
-
-            Mail::to($recipient)->queue(OperatorAlert::fromThrowable($e, request()?->fullUrl()));
-        });
+        // product), so the operator hears about it by mail — outside a queued
+        // job, every reported exception; inside one, only once the job gives up
+        // (templates/nexo-ops, OperatorAlerts). Deduped by exception identity
+        // for 15 minutes, off unless NEXO_OPS_MAIL.
+        $exceptions->report(fn (Throwable $e) => OperatorAlerts::report($e));
+        // «Cerrar sesión» from a page whose session expired (419): no "Page
+        // expired" — Nexo ID's end_session without a hint, which asks before
+        // ending anything (nexo-sso-client v2.1). Any other 419 is untouched.
+        $exceptions->render(fn (HttpException $e, Request $request) => NexoSsoStaleLogout::render($e, $request));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
-    })->create();
+    })
+    // The queue half of OperatorAlerts: remembers each failed attempt of a job
+    // and mails once the job gives up. Here, not inside withExceptions: that
+    // callback runs only once the handler is resolved, and these listeners
+    // have to exist before the first job runs (templates/nexo-ops).
+    ->booted(fn (Application $app) => OperatorAlerts::listen($app['events']))
+    ->create();

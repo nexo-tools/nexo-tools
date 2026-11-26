@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 it('shows the ecosystem hub with every tool', function () {
@@ -54,3 +55,35 @@ it('sends the hero\'s sign-up and sign-in where the auth mode says', function (s
     // In sso, the entry route of session v2 once it is in, the authorize until then.
     'sso' => fn () => ['sso', 'https://id.example.test/register', route(Route::has('nexo-sso.enter') ? 'nexo-sso.enter' : 'nexo-sso.redirect')],
 ]);
+
+it('leads a signed-in person into «Tus herramientas» instead of offering to sign in', function () {
+    // H-nexotools-10: the hero and the closing block used to offer «Create your
+    // account» and «Sign in» to someone who was already in.
+    config()->set('nexo-sso.enabled', true);
+    config()->set('nexo-sso.issuer', 'https://id.example.test');
+    config()->set('nexo-sso.auth_mode', 'local');
+
+    $html = $this->actingAs(User::factory()->create())
+        ->get('/')->assertOk()->getContent();
+
+    $hero = substr($html, strpos($html, 'data-hero-actions'));
+    $hero = substr($hero, 0, strpos($hero, '</div>'));
+
+    expect(substr_count($html, 'href="'.route('dashboard').'">'.e(__('Go to your tools'))))->toBe(2)
+        ->and($hero)->not->toContain(e(__('Create your account')))
+        ->and($hero)->not->toContain('https://id.example.test/register');
+});
+
+it('talks to a visitor in plain words, not in engineering terms', function () {
+    // H-nexotools-09: «Hash SHA-256 diario», «DNT=1 o Sec-GPC=1», «Beacon
+    // siempre 204», «allowlist cerrada», «OpenID Connect»… The technical
+    // detail belongs in the help center and on GitHub.
+    foreach (['es', 'en', 'pt'] as $locale) {
+        $html = $this->get('/?lang='.$locale)->assertOk()->getContent();
+        $text = strip_tags(substr($html, strpos($html, '<main')));
+
+        foreach (['SHA-256', 'DNT=1', 'Sec-GPC', 'Beacon', 'allowlist', 'OpenID', 'self-host', 'autohosped', 'standalone', '204'] as $jargon) {
+            expect(str_contains($text, $jargon))->toBeFalse("«{$jargon}» on the {$locale} landing");
+        }
+    }
+});

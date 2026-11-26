@@ -45,11 +45,20 @@ it('keeps the .htaccess CSP in sync with the middleware CSP', function () {
     config()->set('nexo-sso.enabled', true);
     config()->set('nexo-sso.issuer', 'https://nexoid.alvarocdev.com');
 
-    $middlewareCsp = $this->get('/')->headers->get('Content-Security-Policy');
+    $middlewareCsp = $this->get('https://localhost/')->headers->get('Content-Security-Policy');
 
     $htaccess = file_get_contents(public_path('.htaccess'));
     preg_match('/Header always set Content-Security-Policy "([^"]*)"/', $htaccess, $m);
 
     expect($m[1] ?? null)->not->toBeNull()
         ->and($m[1])->toBe($middlewareCsp);
+});
+
+it('asks to upgrade insecure requests only over https', function () {
+    // A plain-http origin (local, a self-host without TLS) would have every
+    // asset rewritten to an https:// that doesn't answer (CONTRATO-F3 §0.1 item 8).
+    expect($this->get('http://localhost/')->headers->get('Content-Security-Policy'))
+        ->not->toContain('upgrade-insecure-requests')
+        ->and($this->get('https://localhost/')->headers->get('Content-Security-Policy'))
+        ->toEndWith('; upgrade-insecure-requests');
 });

@@ -30,6 +30,13 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="NEXO_SSO_ENABLED" value="true"/>
+        <!-- Pinned so the suite never depends on the developer's .env (or on CI
+             copying .env.example): the CSP form-action follows the issuer, and
+             the auth mode decides which local doors exist (nexo-sso-client). -->
+        <env name="NEXO_SSO_ISSUER" value=""/>
+        <env name="NEXO_SSO_POST_LOGOUT_REDIRECT_URI" value=""/>
+        <env name="NEXO_AUTH_MODE" value="local"/>
+        <env name="NEXO_AUTH_TRANSITION_UNTIL" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

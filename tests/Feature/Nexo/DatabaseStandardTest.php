@@ -30,6 +30,8 @@ const EXPECTED_TABLES = [
     'failed_jobs',
     'job_batches',
     'jobs',
+    // Back-channel logout revocations (nexo-sso-client v2, 2026-11-26).
+    'nexo_sso_revocations',
     'password_reset_tokens',
     'sessions',
     'user_tools',

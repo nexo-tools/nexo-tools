@@ -9,15 +9,15 @@ return [
         ],
         [
             'q' => '¿Es gratis y de código abierto?',
-            'a' => 'Sí. Todas las herramientas Nexo son gratuitas y open source: el código está publicado en GitHub y puedes usarlas sin costo ni comisiones.',
+            'a' => 'Sí. Todas las herramientas Nexo son gratuitas y de código abierto: el código está publicado en GitHub y puedes usarlas sin costo ni comisiones.',
         ],
         [
-            'q' => '¿Puedo autohospedarlo?',
-            'a' => 'Sí. Cada herramienta se puede desplegar en tu propio servidor apuntando a tu base de datos, y funciona en modo standalone sin depender del resto del ecosistema.',
+            'q' => '¿Puedo instalarlo en mi propio servidor?',
+            'a' => 'Sí. Cada herramienta se puede instalar en tu propio servidor, con tus propios datos, y funciona sola, sin depender del resto de Nexo. El paso a paso está en GitHub.',
         ],
         [
             'q' => '¿Qué es Nexo ID?',
-            'a' => 'Nexo ID es la cuenta única del ecosistema: inicias sesión una sola vez y usas todas las herramientas Nexo. Es opcional — cada herramienta también funciona con su propia cuenta local.',
+            'a' => 'Nexo ID es la cuenta única de Nexo: inicias sesión una sola vez y entras en todas las herramientas. Para tener una, toca «Crear cuenta» en cualquiera de ellas.',
         ],
     ],
 ];

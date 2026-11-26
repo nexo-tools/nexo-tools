@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
+use App\Services\NexoSso\NexoAuthMode;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,11 +27,36 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // This tool's own "remember me" is a credential Nexo ID can't revoke:
+        // honoured in local mode only (nexo-sso-client, NEXO_AUTH_MODE). The
+        // checkbox is hidden elsewhere too, but the form is not the guard.
+        $remember = $this->boolean('remember') && NexoAuthMode::allowsRemember();
+
+        // Transition: an account already linked to Nexo ID signs in there. The
+        // callback only runs once the password matched, so the answer reveals
+        // nothing to someone who doesn't know it.
+        $linked = false;
+        $signedIn = Auth::attemptWhen($this->only('email', 'password'), function (Authenticatable $user) use (&$linked): bool {
+            $linked = $user instanceof User && NexoAuthMode::refusesPasswordFor($user->nexo_id_sub);
+
+            return ! $linked;
+        }, $remember);
+
+        if ($linked) {
+            throw ValidationException::withMessages([
+                'email' => __('This account already signs in with Nexo ID.'),
+            ]);
+        }
+
+        if (! $signedIn) {
             RateLimiter::hit($this->throttleKey());
 
+            // With Nexo ID on, the likeliest mistake is a Nexo ID password typed
+            // into this form (H-nexotools-08): say where it does work.
             throw ValidationException::withMessages([
-                'email' => __('These credentials do not match our records.'),
+                'email' => config('nexo-sso.enabled')
+                    ? __('That email and password don\'t match an account here. If you use Nexo ID, choose «Continue with Nexo ID».')
+                    : __('These credentials do not match our records.'),
             ]);
         }
 

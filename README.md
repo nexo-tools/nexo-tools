@@ -25,7 +25,7 @@ Nexo Tools is the **hub of the Nexo family**: a self-hosted homepage that presen
 every tool, explains what each one does, and gets people into them in one click. It
 also carries the ecosystem's shared identity — the app-switcher woven into every
 sibling tool, an optional shared account ([Nexo ID](https://github.com/nexo-tools/nexo-id)
-SSO) with a personal *"your tools"* springboard, and a cookieless dashboard that
+SSO) with a *"your tools"* launcher, and a cookieless dashboard that
 watches the whole family. It doubles as the **reference implementation** of the Nexo
 brand and chrome that every other tool mirrors.
 
@@ -36,10 +36,10 @@ brand and chrome that every other tool mirrors.
   reading a repo.
 - **Move between tools anywhere** — the shared app-switcher (part of the Nexo chrome
   every sibling ships) lets people jump from one tool to another from any page.
-- **One optional account** — sign in with Nexo ID and get a personal *"your tools"*
-  springboard: mark the tools you use, launch them, and curate your own shortcuts.
-  Turn SSO off and the hub runs perfectly standalone — the account layer simply
-  disappears.
+- **One account for every tool** — sign in with Nexo ID and *"your tools"* opens
+  every Nexo tool already signed in, next to your account. Signing out of one signs
+  you out of all of them on that device. Turn SSO off and the hub runs perfectly
+  standalone with its own local accounts.
 - **Cookieless ecosystem analytics** — a tiny beacon records visits with **no cookies,
   no raw IPs, and no cross-site tracking**; it honours Do Not Track, and visitor
   hashes rotate daily. No consent banner needed.

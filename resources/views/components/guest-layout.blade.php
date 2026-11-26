@@ -1,10 +1,15 @@
 {{-- Auth screens: the canonical header + card + footer. `title` names the page
-     in the tab («Iniciar sesión — Nexo Tools»). --}}
-@props(['title' => null])
+     in the tab («Iniciar sesión — Nexo Tools»). The sso-client screens
+     (signed-out, new-account, link-confirm) bring their own nexo-auth-card, so
+     they pass :card="false"; they are never indexed (:noindex="true"). --}}
+@props(['title' => null, 'card' => true, 'noindex' => false])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
+        @if ($noindex)
+            <meta name="robots" content="noindex, nofollow">
+        @endif
     </head>
     <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
         <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-surface focus:px-4 focus:py-2 focus:text-link">
@@ -14,9 +19,13 @@
         <x-nexo-header />
 
         <main id="contenido" class="flex flex-1 flex-col items-center justify-center px-4 py-10">
-            <x-nexo-auth-card>
+            @if ($card)
+                <x-nexo-auth-card>
+                    {{ $slot }}
+                </x-nexo-auth-card>
+            @else
                 {{ $slot }}
-            </x-nexo-auth-card>
+            @endif
         </main>
 
         <x-nexo-footer />

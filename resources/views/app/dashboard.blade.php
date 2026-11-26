@@ -1,73 +1,63 @@
-<x-app-layout :title="__('Your tools')">
+{{-- «Tus herramientas» (D7): the light launcher. Who is signed in and their
+     Nexo ID account, then every tool of the registry, each opening its panel
+     already signed in — the same links as the switcher
+     (NexoChrome::switcherHref). Nothing to build by hand any more
+     (H-nexotools-06). «Cerrar sesión» is the account menu's (and the phone
+     sheet's), right above: a second sign-out form on the page is the drift
+     AccountMenuTest forbids. --}}
+<x-app-layout :title="__('nexo.app.panel')">
+    {{-- How a «Link my account» ended, once; in transition, the offer itself
+         (nexo-sso-client). Renders nothing otherwise. --}}
+    <x-nexo-sso.transition-banner class="mb-6" />
+
     <header class="mb-8">
-        <h1 class="text-2xl font-bold tracking-tight">{{ __('Your tools') }}</h1>
-        <p class="mt-1 text-muted">{{ __('Launch any Nexo tool from here.') }}</p>
+        <h1 class="text-2xl font-bold tracking-tight">{{ __('nexo.app.panel') }}</h1>
+        <p class="mt-1 text-muted">{{ __('Open any Nexo tool: you go in with this same account.') }}</p>
     </header>
 
-    @if (count($added) === 0)
-        {{-- Empty state: invite to explore the registry. (AC-TOOLS-4) --}}
-        <section class="rounded-2xl border border-line bg-surface-raised p-8 text-center">
-            <p class="text-lg font-semibold">{{ __('You haven\'t added any tools yet') }}</p>
-            <p class="mx-auto mt-2 max-w-md text-sm text-muted">{{ __('Explore the Nexo ecosystem and add the ones you use to keep them always at hand.') }}</p>
-            @if (count($available) > 0)
-                <a href="#anadir" class="nexo-btn nexo-btn--primary mt-5">{{ __('Add tools') }}</a>
+    <section class="mb-10 flex flex-wrap items-center gap-x-4 gap-y-4 rounded-2xl border border-line bg-surface-raised p-5 shadow-sm" data-launcher-identity
+             aria-label="{{ __('nexo.account.menu') }}">
+        <span class="nexo-avatar shrink-0" aria-hidden="true">{{ \App\Support\NexoChrome::initials($user) }}</span>
+        <div class="min-w-0 flex-1 basis-48">
+            <p class="truncate font-semibold" data-launcher-name>{{ $user->name }}</p>
+            <p class="truncate text-sm text-muted" data-launcher-email>{{ $user->email }}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            @if ($nexoIdAccountUrl)
+                <a href="{{ $nexoIdAccountUrl }}" class="nexo-btn nexo-btn--ghost nexo-btn--sm" data-launcher-nexo-id>{{ __('nexo.account.nexo_id') }}</a>
             @endif
-        </section>
-    @else
-        {{-- Launch cards for the tools the user added. (AC-TOOLS-1) --}}
-        <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            @foreach ($added as $tool)
-                <div class="flex flex-col rounded-2xl border border-line bg-surface-raised p-5 shadow-sm">
+        </div>
+    </section>
+
+    <section aria-labelledby="launcher-tools">
+        <h2 id="launcher-tools" class="sr-only">{{ __('The tools') }}</h2>
+        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            @foreach ($tools as $tool)
+                <li class="flex flex-col rounded-2xl border border-line bg-surface-raised p-5 shadow-sm" data-launcher-tool="{{ $tool['key'] }}"
+                    @if ($tool['current']) aria-current="page" @endif>
                     <div class="flex items-start gap-3">
                         <img src="{{ $tool['mark'] }}" alt="" width="40" height="40" class="rounded-xl">
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h2 class="text-lg font-semibold">{{ $tool['name'] }}</h2>
-                                @if (($tool['status'] ?? 'live') !== 'live')
+                                <h3 class="text-lg font-semibold">{{ $tool['name'] }}</h3>
+                                @if (! $tool['live'])
                                     <span class="nexo-badge-soon">{{ __('Coming soon') }}</span>
                                 @endif
                             </div>
-                            <p class="mt-1 text-sm text-muted">{{ \App\Support\NexoChrome::tagline($tool['key'], $tool) }}</p>
+                            <p class="mt-1 text-sm text-muted">{{ $tool['tagline'] }}</p>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-3">
-                        @if (($tool['status'] ?? 'live') === 'live' && $tool['url'])
-                            <a href="{{ $tool['url'] }}" class="nexo-btn nexo-btn--primary nexo-btn--sm">{{ __('Open') }}</a>
+                        @if ($tool['current'])
+                            {{-- This very page: an «Abrir» here would only reload it. --}}
+                            <span class="inline-flex min-h-9 items-center text-sm font-medium text-muted">{{ __('You are here') }}</span>
+                        @elseif ($tool['href'])
+                            <a href="{{ $tool['href'] }}" class="nexo-btn nexo-btn--primary nexo-btn--sm" data-launcher-open
+                               aria-label="{{ __('Open :tool', ['tool' => $tool['name']]) }}">{{ __('Open') }}</a>
                         @endif
-                        {{-- data-confirm (nexo-ui.js), never an inline handler:
-                             the CSP drops those (NoInlineHandlersTest). --}}
-                        <form method="POST" action="{{ route('app.tools.destroy', $tool['key']) }}"
-                              data-confirm="{{ __('Remove :tool from your tools?', ['tool' => $tool['name']]) }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="nexo-btn nexo-btn--ghost nexo-btn--sm">{{ __('Remove') }}</button>
-                        </form>
                     </div>
-                </div>
+                </li>
             @endforeach
-        </section>
-    @endif
-
-    @if (count($available) > 0)
-        {{-- Add from the registry. (AC-TOOLS-2) --}}
-        <section id="anadir" class="mt-12 scroll-mt-8">
-            <h2 class="mb-4 text-lg font-semibold">{{ __('Add tools') }}</h2>
-            <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                @foreach ($available as $tool)
-                    <li class="flex items-center gap-3 rounded-xl border border-line bg-surface p-3">
-                        <img src="{{ $tool['mark'] }}" alt="" width="32" height="32" class="rounded-lg">
-                        <div class="min-w-0 flex-1">
-                            <p class="font-medium">{{ $tool['name'] }}</p>
-                            <p class="truncate text-xs text-muted">{{ \App\Support\NexoChrome::tagline($tool['key'], $tool) }}</p>
-                        </div>
-                        <form method="POST" action="{{ route('app.tools.store') }}">
-                            @csrf
-                            <input type="hidden" name="tool_key" value="{{ $tool['key'] }}">
-                            <button type="submit" class="nexo-btn nexo-btn--ghost">{{ __('Add') }}</button>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
-        </section>
-    @endif
+        </ul>
+    </section>
 </x-app-layout>

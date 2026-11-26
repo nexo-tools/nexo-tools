@@ -28,7 +28,7 @@ class SecurityHeaders
     private function headers(Request $request): array
     {
         $headers = [
-            'Content-Security-Policy' => $this->contentSecurityPolicy(),
+            'Content-Security-Policy' => $this->contentSecurityPolicy($request),
             'X-Content-Type-Options' => 'nosniff',
             'X-Frame-Options' => 'DENY',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
@@ -45,7 +45,7 @@ class SecurityHeaders
         return $headers;
     }
 
-    private function contentSecurityPolicy(): string
+    private function contentSecurityPolicy(Request $request): string
     {
         // Alpine evaluates directive expressions at runtime, which needs
         // 'unsafe-eval'; inline styles power per-business theming and stat bars.
@@ -72,7 +72,7 @@ class SecurityHeaders
             $connect .= " {$dev} ".preg_replace('#^http#', 'ws', $dev);
         }
 
-        return implode('; ', [
+        $directives = [
             "default-src 'self'",
             "base-uri 'self'",
             "form-action {$this->formAction()}",
@@ -83,7 +83,17 @@ class SecurityHeaders
             "script-src {$script}",
             "style-src {$style}",
             "connect-src {$connect}",
-        ]);
+        ];
+
+        // Only over HTTPS (CONTRATO-F3 §0.1 item 8): on a plain-http origin —
+        // a local instance, a self-host behind no TLS — it would upgrade every
+        // asset to an https:// that doesn't answer and the page loads bare.
+        // Production is always https, so public/.htaccess carries it.
+        if ($request->isSecure()) {
+            $directives[] = 'upgrade-insecure-requests';
+        }
+
+        return implode('; ', $directives);
     }
 
     /**

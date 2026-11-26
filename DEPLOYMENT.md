@@ -63,7 +63,7 @@ php artisan package:discover --ansi
 
 # 2. .env
 cp .env.example .env
-#   APP_NAME="NexoTools", APP_ENV=production, APP_DEBUG=false
+#   APP_NAME="Nexo Tools", APP_ENV=production, APP_DEBUG=false
 #   APP_URL=https://nexotools.<domain>
 #   DB_CONNECTION=sqlite   +   DB_DATABASE=<abs path>/database/database.sqlite
 #   SESSION_DRIVER=file, CACHE_STORE=file
@@ -77,6 +77,13 @@ cp .env.example .env
 #   NEXO_ATTRIBUTION_TEXT / NEXO_ATTRIBUTION_URL for the footer
 #   QUEUE_CONNECTION=database + the scheduler cron below: every mail is queued
 #   (family rule C2), so without the cron nothing is ever delivered.
+#   Nexo ID (nexo-sso-client v2.1, see .env.example): NEXO_SSO_ENABLED=true,
+#     NEXO_SSO_ISSUER, NEXO_SSO_CLIENT_ID, NEXO_AUTH_MODE (the hosted hub: sso),
+#     NEXO_SSO_POST_LOGOUT_REDIRECT_URI empty (= /auth/nexo/signed-out). Register
+#     the client's callback, signed-out and back-channel URIs on Nexo ID
+#     (nexo:sso-client / nexo:sso-client:update). CACHE_STORE must persist
+#     (file here): the re-validation flows and the back-channel replay guard
+#     live in it.
 php artisan key:generate --force
 
 # 3. SQLite DB

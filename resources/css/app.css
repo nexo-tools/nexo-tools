@@ -99,6 +99,9 @@
     --color-primary-subtle-fg: var(--nexo-primary-subtle-fg);
     --color-ring: var(--nexo-ring);
     --color-link: var(--nexo-link);
+    /* The sso-client screens (signed-out, new-account, link-confirm) hover
+       their links with it. */
+    --color-link-hover: var(--nexo-link-hover);
     --color-danger: var(--nexo-danger);
     --color-danger-subtle: var(--nexo-danger-subtle);
     --color-danger-subtle-fg: var(--nexo-danger-subtle-fg);
