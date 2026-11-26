@@ -12,6 +12,10 @@ it('sends security headers on public pages', function () {
 });
 
 it('sends a self-contained content-security-policy', function () {
+    // Standalone: not a single external origin. (With SSO on, the only one is
+    // the issuer in form-action — CspFormActionTest.)
+    config()->set('nexo-sso.enabled', false);
+
     $response = $this->get('/');
 
     $csp = $response->headers->get('Content-Security-Policy');
@@ -37,6 +41,10 @@ it('does not advertise HSTS over plain http', function () {
 it('keeps the .htaccess CSP in sync with the middleware CSP', function () {
     // On LiteSpeed the web server strips the PHP-sent CSP (Force-HTTPS), so it is
     // re-asserted in public/.htaccess. The two must match or prod silently weakens.
+    // Compared as production runs it: SSO on, against the production issuer.
+    config()->set('nexo-sso.enabled', true);
+    config()->set('nexo-sso.issuer', 'https://nexoid.alvarocdev.com');
+
     $middlewareCsp = $this->get('/')->headers->get('Content-Security-Policy');
 
     $htaccess = file_get_contents(public_path('.htaccess'));

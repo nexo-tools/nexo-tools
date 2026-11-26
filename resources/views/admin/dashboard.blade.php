@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="__('Admin')">
     <header class="mb-8">
         <h1 class="text-2xl font-bold tracking-tight">{{ __('Admin') }}</h1>
         <p class="mt-1 text-muted">{{ __('Cookieless metrics for the Nexo ecosystem.') }}</p>

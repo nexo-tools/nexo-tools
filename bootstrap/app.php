@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\NexoNoStore;
 use App\Http\Middleware\NexoSsoSilentLogin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
@@ -27,6 +28,9 @@ return Application::configure(basePath: dirname(__DIR__))
             SecurityHeaders::class,
             // Silent SSO trigger (prompt=none) — pass-through unless NEXO_SSO_ENABLED.
             NexoSsoSilentLogin::class,
+            // no-store on everything with a session and on the auth screens, so
+            // the back button never shows a signed-out person a private page.
+            NexoNoStore::class,
         ]);
 
         // Shared preference cookies (theme + language) are scoped to the parent

@@ -1,49 +1,42 @@
-<x-guest-layout>
+{{-- Sign-in, chrome v2: «Continuar con Nexo ID» first and primary when SSO is
+     on (x-nexo-sign-in-options, STANDARD «Login», LoginNexoIdFirstTest); the
+     local form follows as the secondary way in, with a ghost submit so the
+     screen has one violet button. The auth mode (NEXO_AUTH_MODE) decides
+     whether the local form shows, folds or disappears. --}}
+@php($ssoFirst = \App\Support\NexoChrome::ssoSignInUrl() !== null)
+<x-guest-layout :title="__('Sign in')">
     <h1 class="mb-6 text-xl font-semibold">{{ __('Sign in to your account') }}</h1>
 
     @if (session('status'))
         <p class="nexo-flash mb-4" role="status">{{ session('status') }}</p>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-4"
-          x-data="{ sending: false }" @submit="$nextTick(() => sending = true)">
-        @csrf
+    <x-nexo-sign-in-options>
+        <form method="POST" action="{{ route('login') }}" class="space-y-4"
+              x-data="{ sending: false }" @submit="$nextTick(() => sending = true)">
+            @csrf
 
-        <x-field :label="__('Email')" name="email" type="email" required autocomplete="username" />
-        <x-field :label="__('Password')" name="password" type="password" required autocomplete="current-password" />
+            <x-field :label="__('Email')" name="email" type="email" required autocomplete="username" />
+            <x-field :label="__('Password')" name="password" type="password" required autocomplete="current-password" />
 
-        <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="remember" class="rounded border-control bg-surface text-primary focus:ring-ring">
-            {{ __('Remember me') }}
-        </label>
+            @if (\App\Support\NexoChrome::authMode() === 'local')
+                <label class="flex min-h-11 items-center gap-2 text-sm">
+                    <input type="checkbox" name="remember" class="rounded border-control bg-surface text-primary focus:ring-ring">
+                    {{ __('Remember me') }}
+                </label>
+            @endif
 
-        <x-button ::disabled="sending" ::aria-busy="sending">{{ __('Sign in') }}</x-button>
+            @if ($ssoFirst)
+                <button type="submit" class="nexo-btn nexo-btn--ghost w-full" :disabled="sending" :aria-busy="sending">{{ __('Sign in') }}</button>
+            @else
+                <x-button ::disabled="sending" ::aria-busy="sending">{{ __('Sign in') }}</x-button>
+            @endif
 
-        <p class="text-center text-sm">
-            <a href="{{ route('password.request') }}" class="text-link hover:underline">
-                {{ __('Forgot your password?') }}
-            </a>
-        </p>
-    </form>
-
-    @if (config('nexo-sso.enabled'))
-        <div class="my-4 flex items-center gap-3 text-xs uppercase text-muted">
-            <span class="h-px flex-grow bg-line"></span>
-            {{ __('Or') }}
-            <span class="h-px flex-grow bg-line"></span>
-        </div>
-
-        @error('nexo_sso')
-            <p class="nexo-flash nexo-flash--danger mb-3" role="alert">{{ $message }}</p>
-        @enderror
-
-        <a href="{{ route('nexo-sso.redirect') }}" class="nexo-btn nexo-btn--ghost w-full">
-            {{ __('Continue with Nexo ID') }}
-        </a>
-    @endif
-
-    <p class="mt-4 text-center text-sm text-muted">
-        {{ __('Don\'t have an account?') }}
-        <a href="{{ route('register') }}" class="font-medium text-link hover:underline">{{ __('Create account') }}</a>
-    </p>
+            <p class="text-center text-sm">
+                <a href="{{ route('password.request') }}" class="inline-flex min-h-11 items-center text-link hover:underline">
+                    {{ __('Forgot your password?') }}
+                </a>
+            </p>
+        </form>
+    </x-nexo-sign-in-options>
 </x-guest-layout>

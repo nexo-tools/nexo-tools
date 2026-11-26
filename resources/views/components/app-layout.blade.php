@@ -1,5 +1,8 @@
-{{-- Full-width authenticated shell (springboard, admin): shared Nexo chrome with
-     a logout action in the header. Content goes in the default slot. --}}
+{{-- Full-width authenticated shell (springboard, admin). The header is the
+     canonical v2 one — the same on every layout, with the account menu (and the
+     phone sheet) carrying «Cerrar sesión». Content goes in the default slot;
+     `title` names the page in the tab («<Página> — Nexo Tools»). --}}
+@props(['title' => null])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -10,14 +13,7 @@
             {{ __('Skip to content') }}
         </a>
 
-        <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg">
-            <x-slot:actions>
-                <form method="POST" action="{{ config('nexo-sso.enabled') ? route('nexo-sso.logout') : route('logout') }}">
-                    @csrf
-                    <button type="submit" class="nexo-btn nexo-btn--ghost">{{ __('Sign out') }}</button>
-                </form>
-            </x-slot:actions>
-        </x-nexo-header>
+        <x-nexo-header />
 
         <main id="contenido" class="mx-auto w-full max-w-4xl flex-1 px-4 py-12">
             {{ $slot }}

@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout :title="__('Create account')">
     <h1 class="mb-1 text-xl font-semibold">{{ __('Create your account') }}</h1>
     <p class="mb-6 text-sm text-muted">{{ __('One account for all the Nexo tools.') }}</p>
 

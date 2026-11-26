@@ -66,7 +66,7 @@ class SecurityHeaders
         return implode('; ', [
             "default-src 'self'",
             "base-uri 'self'",
-            "form-action 'self'",
+            "form-action {$this->formAction()}",
             "frame-ancestors 'none'",
             "object-src 'none'",
             "img-src 'self' data:",
@@ -75,6 +75,32 @@ class SecurityHeaders
             "style-src {$style}",
             "connect-src {$connect}",
         ]);
+    }
+
+    /**
+     * `form-action` also governs the redirects that FOLLOW a form POST. With SSO
+     * on, «Cerrar sesión» posts here and is redirected to Nexo ID's end_session:
+     * with 'self' alone the browser silently dropped that hop (Chrome and Safari),
+     * so nothing happened on screen and Nexo ID stayed signed in (H-nexotools-01).
+     * The issuer's origin is allowed only while SSO is on; standalone stays
+     * same-origin. public/.htaccess carries the production issuer
+     * (CspFormActionTest + the sync test in SecurityHeadersTest).
+     */
+    private function formAction(): string
+    {
+        $issuer = (string) config('nexo-sso.issuer', '');
+        if (! config('nexo-sso.enabled') || $issuer === '') {
+            return "'self'";
+        }
+
+        $parts = parse_url($issuer);
+        if (! is_array($parts) || empty($parts['host'])) {
+            return "'self'";
+        }
+
+        $origin = ($parts['scheme'] ?? 'https').'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '');
+
+        return "'self' {$origin}";
     }
 
     private function viteDevServer(): ?string

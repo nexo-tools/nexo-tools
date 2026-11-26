@@ -31,20 +31,38 @@ document.addEventListener('alpine:init', () => {
   // navigation, Home/End, and focus returning to the trigger on close. Without
   // it a screen-reader user is told to press arrows and nothing happens.
   // Wire it up with:  x-data="nexoMenu" @keydown="onKeydown($event)"
-  Alpine.data('nexoMenu', () => ({
+  //
+  // Modal mode (chrome v2, the phone sheet): x-data="nexoMenu({ modal: true })".
+  // Same open/close/Escape/focus-return contract, but it is a dialog, not a menu:
+  // Tab and Shift+Tab cycle INSIDE the panel (focus trap) instead of closing it,
+  // every focusable counts (links, buttons, the theme toggle), and the page under
+  // it stops scrolling. The trigger is the element with x-ref="trigger" (or the
+  // first [aria-haspopup]); the panel is x-ref="panel".
+  Alpine.data('nexoMenu', ({ modal = false } = {}) => ({
     open: false,
+    modal,
+    trigger() {
+      return this.$refs.trigger || this.$el.querySelector('[aria-haspopup]');
+    },
     toggle() {
-      this.open = !this.open;
-      if (this.open) this.$nextTick(() => this.focusItem(0));
+      if (this.open) { this.close(); return; }
+      this.open = true;
+      if (this.modal) document.documentElement.classList.add('nexo-sheet-open');
+      this.$nextTick(() => this.focusItem(0));
     },
     close({ restoreFocus = true } = {}) {
       if (!this.open) return;
       this.open = false;
-      if (restoreFocus) this.$el.querySelector('[aria-haspopup]')?.focus();
+      if (this.modal) document.documentElement.classList.remove('nexo-sheet-open');
+      if (restoreFocus) this.trigger()?.focus();
     },
     items() {
-      return Array.from(this.$el.querySelectorAll('[role="menuitem"]'))
-        .filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+      const root = this.modal ? (this.$refs.panel || this.$el) : this.$el;
+      const selector = this.modal
+        ? 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        : '[role="menuitem"]';
+      return Array.from(root.querySelectorAll(selector))
+        .filter((el) => !el.hasAttribute('disabled') && el.getClientRects().length > 0);
     },
     focusItem(index) {
       const items = this.items();
@@ -58,8 +76,19 @@ document.addEventListener('alpine:init', () => {
       this.focusItem(current === -1 ? (step > 0 ? 0 : items.length - 1) : current + step);
     },
     onKeydown(event) {
-      if (event.key === 'Escape') { this.close(); return; }
+      if (event.key === 'Escape') {
+        if (this.open) event.stopPropagation();
+        this.close();
+        return;
+      }
       if (!this.open) return;
+      if (this.modal) {
+        // Focus trap: the sheet covers the page, so focus must not leave it.
+        if (event.key !== 'Tab') return;
+        event.preventDefault();
+        this.moveFocus(event.shiftKey ? -1 : 1);
+        return;
+      }
       const handlers = {
         ArrowDown: () => this.moveFocus(1),
         ArrowUp: () => this.moveFocus(-1),

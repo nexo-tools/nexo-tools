@@ -3,7 +3,7 @@
     <head>
         @include('partials.head', ['seo' => true])
         <x-nexo-seo
-            :title="__('nexo.help.title').' — '.config('app.name')"
+            :title="\App\Support\NexoChrome::pageTitle(__('nexo.help.title'))"
             :description="__('nexo.help.intro')" />
     </head>
     <body class="flex min-h-screen flex-col bg-bg font-sans text-ink antialiased">
@@ -11,7 +11,7 @@
             {{ __('Skip to content') }}
         </a>
 
-        <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg" />
+        <x-nexo-header />
 
         <main id="contenido" class="flex-1">
             <div class="nexo-help">

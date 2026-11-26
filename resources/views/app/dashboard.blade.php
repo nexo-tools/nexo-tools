@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="__('Your tools')">
     <header class="mb-8">
         <h1 class="text-2xl font-bold tracking-tight">{{ __('Your tools') }}</h1>
         <p class="mt-1 text-muted">{{ __('Launch any Nexo tool from here.') }}</p>
@@ -15,7 +15,7 @@
         </section>
     @else
         {{-- Launch cards for the tools the user added. (AC-TOOLS-1) --}}
-        <section class="grid gap-4 sm:grid-cols-2">
+        <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             @foreach ($added as $tool)
                 <div class="flex flex-col rounded-2xl border border-line bg-surface-raised p-5 shadow-sm">
                     <div class="flex items-start gap-3">
@@ -27,7 +27,7 @@
                                     <span class="nexo-badge-soon">{{ __('Coming soon') }}</span>
                                 @endif
                             </div>
-                            <p class="mt-1 text-sm text-muted">{{ $tool['tagline'] }}</p>
+                            <p class="mt-1 text-sm text-muted">{{ \App\Support\NexoChrome::tagline($tool['key'], $tool) }}</p>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-3">
@@ -54,13 +54,13 @@
         {{-- Add from the registry. (AC-TOOLS-2) --}}
         <section id="anadir" class="mt-12 scroll-mt-8">
             <h2 class="mb-4 text-lg font-semibold">{{ __('Add tools') }}</h2>
-            <ul class="grid gap-3 sm:grid-cols-2">
+            <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 @foreach ($available as $tool)
                     <li class="flex items-center gap-3 rounded-xl border border-line bg-surface p-3">
                         <img src="{{ $tool['mark'] }}" alt="" width="32" height="32" class="rounded-lg">
                         <div class="min-w-0 flex-1">
                             <p class="font-medium">{{ $tool['name'] }}</p>
-                            <p class="truncate text-xs text-muted">{{ $tool['tagline'] }}</p>
+                            <p class="truncate text-xs text-muted">{{ \App\Support\NexoChrome::tagline($tool['key'], $tool) }}</p>
                         </div>
                         <form method="POST" action="{{ route('app.tools.store') }}">
                             @csrf

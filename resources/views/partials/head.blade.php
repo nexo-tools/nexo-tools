@@ -5,7 +5,9 @@
      included), so they include this partial with ['seo' => true] to suppress the
      plain title + theme-color below and avoid duplicating them. --}}
 @unless ($seo ?? false)
-    <title>{{ isset($title) ? $title.' — '.config('app.name') : config('app.name') }}</title>
+    {{-- «<Página> — Nexo Tools» (STANDARD «Títulos», PageTitleTest): the brand
+         is the registry name, never APP_NAME. --}}
+    <title>{{ \App\Support\NexoChrome::pageTitle($title ?? null) }}</title>
 @endunless
 
 <link rel="icon" href="/favicon.ico" sizes="48x48">

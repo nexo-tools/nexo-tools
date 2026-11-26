@@ -9,7 +9,7 @@
     <head>
         @include('partials.head', ['seo' => true])
         <x-nexo-seo
-            :title="config('app.name').' — '.$title"
+            :title="\App\Support\NexoChrome::homeTitle($title)"
             :description="$description"
             :canonical="url('/')" />
     </head>
@@ -18,17 +18,9 @@
             {{ __('Skip to content') }}
         </a>
 
-        {{-- Only the hero carries a primary CTA (design.md, "CTA voice"), so the
-             header's action stays a ghost. --}}
-        <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg">
-            <x-slot:actions>
-                @auth
-                    <a href="{{ route('dashboard') }}" class="nexo-btn nexo-btn--ghost">{{ __('Your tools') }}</a>
-                @else
-                    <a href="{{ route('login') }}" class="nexo-btn nexo-btn--ghost nexo-header__auth">{{ __('Sign in') }}</a>
-                @endauth
-            </x-slot:actions>
-        </x-nexo-header>
+        {{-- The same header as every other layout (chrome v2). Its sign-in is a
+             ghost: only the hero carries a primary CTA (design.md, "CTA voice"). --}}
+        <x-nexo-header />
 
         <main id="contenido" class="flex-1">
             {{ $slot }}

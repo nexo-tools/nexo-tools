@@ -48,7 +48,7 @@
             <h2 class="text-2xl font-semibold tracking-tight text-ink">{{ __('The tools') }}</h2>
 
             <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                @foreach ($tools as $tool)
+                @foreach ($tools as $key => $tool)
                     <div class="rounded-2xl border border-line bg-surface-raised p-5 shadow-sm">
                         <div class="flex items-start gap-3">
                             <img src="{{ $tool['mark'] }}" alt="" width="40" height="40" class="rounded-xl">
@@ -61,7 +61,7 @@
                                         <span class="nexo-badge-soon">{{ __('Coming soon') }}</span>
                                     @endif
                                 </div>
-                                <p class="mt-1 text-sm text-muted">{{ $tool['tagline'] }}</p>
+                                <p class="mt-1 text-sm text-muted">{{ \App\Support\NexoChrome::tagline($key, $tool) }}</p>
                             </div>
                         </div>
                         @if (($tool['status'] ?? 'live') === 'live' && $tool['url'])

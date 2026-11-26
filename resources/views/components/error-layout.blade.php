@@ -14,7 +14,7 @@
             {{ __('Skip to content') }}
         </a>
 
-        <x-nexo-header brand="Nexo Tools" mark="/ecosystem/nexotools.svg" />
+        <x-nexo-header />
 
         <main id="contenido" class="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
             <p class="text-6xl font-bold tabular-nums text-primary">{{ $code }}</p>

@@ -103,3 +103,10 @@ Route::middleware('auth')->group(function () {
     Route::post('verify-email/send', [EmailVerificationController::class, 'send'])
         ->middleware('throttle:6,1')->name('verification.send');
 });
+
+// Last route, on purpose. An unmatched URL used to 404 BEFORE the `web` group
+// ran, so the error page had no session and showed a signed-in person a guest
+// header (chrome v2: the header knows who you are on every page, the 404
+// included — HeaderEverywhereTest). Inside `web`, the 404 gets the session, the
+// locale, the security headers and no-store like any other page.
+Route::fallback(fn () => abort(404))->name('fallback');
