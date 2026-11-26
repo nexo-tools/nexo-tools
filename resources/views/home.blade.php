@@ -22,6 +22,13 @@
     // The same answers the help center gives, in the same words — the landing
     // does not get a marketing rewrite of them.
     $faqs = array_slice((array) __('help.faqs'), 0, 4);
+
+    // The hero's two doors go where the header's do (chrome v2): with
+    // NEXO_AUTH_MODE=sso or transition, «Create your account» is Nexo ID's
+    // sign-up and «Sign in» enters through Nexo ID — the local /register and
+    // /login are closed there.
+    $signUpUrl = \App\Support\NexoChrome::signUpUrl() ?? route('register');
+    $signInUrl = \App\Support\NexoChrome::signInUrl() ?? route('login');
 @endphp
 
 <x-landing-layout :title="__('The open hub of the Nexo ecosystem.')"
@@ -32,8 +39,8 @@
             <h1 class="max-w-2xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{{ __('The open hub of the Nexo ecosystem.') }}</h1>
             <p class="mt-5 max-w-xl text-lg text-muted">{{ __('All the Nexo tools, one account.') }}</p>
             <div class="mt-8 flex flex-wrap gap-3">
-                <a class="nexo-btn nexo-btn--primary" href="{{ route('register') }}">{{ __('Create your account') }}</a>
-                <a class="nexo-btn nexo-btn--ghost" href="{{ route('login') }}">{{ __('Sign in') }}</a>
+                <a class="nexo-btn nexo-btn--primary" href="{{ $signUpUrl }}">{{ __('Create your account') }}</a>
+                <a class="nexo-btn nexo-btn--ghost" href="{{ $signInUrl }}">{{ __('Sign in') }}</a>
             </div>
         </div>
     </section>
@@ -116,7 +123,7 @@
 
     <section data-landing-section="cierre">
         <div class="mx-auto max-w-4xl px-6">
-            <a class="nexo-btn nexo-btn--primary" href="{{ route('register') }}">{{ __('Create your account') }}</a>
+            <a class="nexo-btn nexo-btn--primary" href="{{ $signUpUrl }}">{{ __('Create your account') }}</a>
         </div>
     </section>
 </x-landing-layout>

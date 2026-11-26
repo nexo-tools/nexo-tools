@@ -15,7 +15,10 @@ use Illuminate\Support\Facades\Route;
 // The 404 is the trap: Laravel renders an unmatched URL BEFORE the `web` group
 // runs, so the error page has no session and shows a guest header to someone
 // who is signed in. The cure is a last route `Route::fallback(fn () =>
-// abort(404))` inside web.php (templates/nexo-ui/pages/README.md).
+// abort(404))->name('fallback')` inside web.php (templates/nexo-ui/pages/README.md).
+// The probe URL has two segments on purpose: a one-segment catch-all
+// (nexolinks' /{username}) 404s inside `web` by itself and would hide a missing
+// fallback for every deeper URL.
 //
 // Copy into tests/Feature/Nexo/. The pages come from route names every Nexo app
 // shares; one that does not exist here is skipped, never failed.
@@ -35,9 +38,15 @@ function headerEverywherePages(bool $signedIn): array
         $pages['panel'] = NexoChrome::panelUrl();
     }
 
-    $pages['404'] = url('/nexo-header-everywhere-'.substr(md5((string) microtime(true)), 0, 8));
+    $pages['404'] = headerEverywhereMissingUrl();
 
     return $pages;
+}
+
+/** A URL no route of the app matches (two segments: see the header comment). */
+function headerEverywhereMissingUrl(string $last = ''): string
+{
+    return url('/nexo-header-everywhere/'.($last !== '' ? $last : substr(md5(uniqid('', true)), 0, 8)));
 }
 
 /** The rendered <header data-nexo-header> of a page. */
@@ -85,12 +94,29 @@ it('renders the 404 inside the web group, so it knows who is signed in', functio
     // the web group would still look signed in here — while in a real browser
     // it has no session at all. What gives it away is the response itself: only
     // a request that went through StartSession sends the session cookie back.
-    $response = test()->get(url('/nexo-header-everywhere-404-'.uniqid()))->assertNotFound();
+    $response = test()->get(headerEverywhereMissingUrl())->assertNotFound();
 
     $cookies = array_map(fn ($cookie) => $cookie->getName(), $response->headers->getCookies());
     expect(in_array(config('session.cookie'), $cookies, true))->toBeTrue(
         'The 404 is rendered outside the web group (no session): add `Route::fallback(fn () => abort(404))` as the last route of routes/web.php.'
     );
+});
+
+it('never bounces a 404 to Nexo ID', function () {
+    // Inside `web` the 404 runs every middleware of the group — the silent SSO
+    // attempt included. Browsers fetch missing files (/apple-touch-icon.png,
+    // an old asset) with the session cookie, and that fetch used to spend the
+    // session's one silent attempt and overwrite url.intended with the file's
+    // path. The fallback route is excluded from the silent attempt
+    // (nexo-sso.silent_excluded_routes ⊇ ['fallback']). Apps without a silent
+    // middleware (Nexo ID) pass trivially.
+    config()->set('nexo-sso.enabled', true);
+    config()->set('nexo-sso.silent', true);
+
+    $response = test()->withCookie((string) config('session.cookie'), 'nexo-guardian')
+        ->get(headerEverywhereMissingUrl('apple-touch-icon.png'));
+
+    expect($response->status())->toBe(404, 'A guest\'s 404 was redirected (to '.$response->headers->get('Location').'): add \'fallback\' to nexo-sso.silent_excluded_routes.');
 });
 
 it('renders the very same header on every layout', function () {

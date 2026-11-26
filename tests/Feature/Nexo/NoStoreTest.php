@@ -32,7 +32,7 @@ it('marks every signed-in page no-store', function () {
             $pages[$name] = route($name);
         }
     }
-    $pages['404'] = url('/nexo-no-store-'.uniqid());
+    $pages['404'] = url('/nexo-no-store/'.uniqid());
 
     foreach ($pages as $page => $url) {
         noStoreAssert(test()->get($url), $page);

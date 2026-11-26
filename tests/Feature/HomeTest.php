@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 it('shows the ecosystem hub with every tool', function () {
     $this->get('/')
         ->assertOk()
@@ -33,3 +35,22 @@ it('links live tools and badges upcoming ones, straight from the registry', func
 it('routes developers to the GitHub organization', function () {
     $this->get('/')->assertSee(config('nexo-ecosystem.github_org_url'), false);
 });
+
+it('sends the hero\'s sign-up and sign-in where the auth mode says', function (string $mode, string $signUp, string $signIn) {
+    // Chrome v2: the landing must not offer the local /register or /login in
+    // the modes that close them — the header already goes to Nexo ID there.
+    config()->set('nexo-sso.enabled', true);
+    config()->set('nexo-sso.issuer', 'https://id.example.test');
+    config()->set('nexo-sso.auth_mode', $mode);
+    config()->set('nexo-sso.transition_until', now()->addMonth()->format('Y-m-d'));
+
+    $html = $this->get('/')->assertOk()->getContent();
+
+    expect(substr_count($html, 'href="'.$signUp.'">'.__('Create your account')))->toBe(2)
+        ->and(str_contains($html, 'href="'.$signIn.'">'.__('Sign in')))->toBeTrue();
+})->with([
+    'local' => fn () => ['local', route('register'), route('login')],
+    'transition' => fn () => ['transition', 'https://id.example.test/register', route('login')],
+    // In sso, the entry route of session v2 once it is in, the authorize until then.
+    'sso' => fn () => ['sso', 'https://id.example.test/register', route(Route::has('nexo-sso.enter') ? 'nexo-sso.enter' : 'nexo-sso.redirect')],
+]);

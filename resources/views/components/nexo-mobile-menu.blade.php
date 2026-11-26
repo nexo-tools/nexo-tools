@@ -60,6 +60,7 @@
         id="{{ $sheetId }}"
         class="nexo-sheet"
         x-ref="panel"
+        tabindex="-1"
         x-show="open"
         x-cloak
         role="dialog"
@@ -68,7 +69,7 @@
         data-nexo-sheet
     >
         <div class="nexo-sheet__bar">
-            <span class="nexo-header__brand">
+            <span class="nexo-sheet__brand">
                 <img src="{{ $mark }}" alt="" width="32" height="32" />
                 <span class="nexo-sheet__title">{{ $brand }}</span>
             </span>

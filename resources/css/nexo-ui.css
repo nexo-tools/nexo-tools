@@ -152,7 +152,14 @@
   min-height: 60px; padding: 0.5rem 1rem;
   background: var(--nexo-surface); border-bottom: 1px solid var(--nexo-border);
 }
-.nexo-sheet__title { font-weight: 700; }
+/* The sheet's own lockup (not .nexo-header__brand: under 360px that one hides
+   its text, and the sheet has the whole width to spare). */
+.nexo-sheet__brand { display: inline-flex; align-items: center; gap: 0.6rem; min-width: 0; font-weight: 700; }
+.nexo-sheet__brand img { width: 32px; height: 32px; display: block; flex: none; }
+.nexo-sheet__title { font-weight: 700; overflow-wrap: anywhere; }
+/* The panel takes focus (tabindex=-1) when a person taps plain text inside it,
+   so Tab and Escape keep working; that focus is not a control and shows no ring. */
+.nexo-sheet:focus { outline: none; }
 .nexo-sheet__body { display: flex; flex-direction: column; gap: 0.125rem; padding: 0.75rem 1rem 2rem; }
 .nexo-sheet__identity { padding: 0.5rem 0.75rem 0.75rem; overflow-wrap: anywhere; }
 .nexo-sheet__identity strong { display: block; font-weight: 600; }
@@ -179,8 +186,10 @@
 .nexo-sheet__form { margin: 0; }
 .nexo-sheet__item--danger { color: var(--nexo-danger); }
 .nexo-sheet__item--danger svg { color: currentColor; }
-/* While the sheet is open the page underneath does not scroll. */
-html.nexo-sheet-open { overflow: hidden; }
+/* While the sheet is open the page underneath does not scroll — on phones
+   only: a tablet rotated past 768px hides the sheet, and the page must not stay
+   locked under a sheet nobody can see. */
+@media (max-width: 767.98px) { html.nexo-sheet-open { overflow: hidden; } }
 
 /* ---- Inline language list (phone sheet, public footer) ----------------- */
 .nexo-locale-list { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }

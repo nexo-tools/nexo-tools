@@ -35,14 +35,33 @@ function cspOrigin(string $url): string
     return ($parts['scheme'] ?? 'https').'://'.($parts['host'] ?? '').(isset($parts['port']) ? ':'.$parts['port'] : '');
 }
 
-/** The origins this app's form-action must allow, for a given issuer. */
-function cspExpectedOrigins(string $issuer): array
+/**
+ * The PRODUCTION URL of a registry tool: the env() default written in
+ * config/nexo-ecosystem.php. public/.htaccess is what production serves, so it
+ * is checked against those defaults — a local NEXO_URL_* override (an e2e run
+ * pointing the switcher at *.localhost) must not make it look wrong.
+ */
+function cspProductionUrl(string $key): string
+{
+    $source = (string) @file_get_contents(config_path('nexo-ecosystem.php'));
+    $pattern = "/'".preg_quote($key, '/')."'\\s*=>\\s*\\[[^\\]]*?'url'\\s*=>\\s*env\\(\\s*'[A-Z0-9_]+'\\s*,\\s*'([^']+)'/s";
+
+    return preg_match($pattern, $source, $m) ? $m[1] : (string) config("nexo-ecosystem.tools.{$key}.url", '');
+}
+
+/**
+ * The origins this app's form-action must allow, for a given issuer: the
+ * issuer's in a tool; in Nexo ID, every client tool of the registry (as
+ * configured, or as production has them).
+ */
+function cspExpectedOrigins(string $issuer, bool $production = false): array
 {
     if (NexoChrome::current() === 'nexoid') {
         $origins = [];
-        foreach ((array) config('nexo-ecosystem.tools') as $key => $tool) {
-            if ($key !== 'nexoid' && ! empty($tool['url'])) {
-                $origins[] = cspOrigin((string) $tool['url']);
+        foreach (array_keys((array) config('nexo-ecosystem.tools')) as $key) {
+            $url = $production ? cspProductionUrl((string) $key) : (string) config("nexo-ecosystem.tools.{$key}.url", '');
+            if ($key !== 'nexoid' && $url !== '') {
+                $origins[] = cspOrigin($url);
             }
         }
 
@@ -82,12 +101,11 @@ it('ships the same origins in the production .htaccess policy', function () {
         test()->markTestSkipped('This app does not re-assert its CSP in public/.htaccess.');
     }
 
-    // The production issuer is the registry's Nexo ID URL.
-    $issuer = (string) config('nexo-ecosystem.tools.nexoid.url', 'https://nexoid.alvarocdev.com');
+    // The production issuer is the registry's Nexo ID URL (its env() default).
     $sources = cspFormAction($m[1]);
 
     expect($sources)->toContain("'self'");
-    foreach (cspExpectedOrigins($issuer) as $origin) {
+    foreach (cspExpectedOrigins(cspProductionUrl('nexoid'), production: true) as $origin) {
         expect(in_array($origin, $sources, true))->toBeTrue("public/.htaccess form-action does not allow {$origin} — LiteSpeed serves THIS policy in production.");
     }
 });

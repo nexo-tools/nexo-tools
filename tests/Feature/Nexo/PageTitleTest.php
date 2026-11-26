@@ -59,7 +59,7 @@ it('titles every public page «Página — Nexo App»', function () {
         $checked++;
     }
 
-    pageTitleAssertInner(pageTitleOf(test()->get('/nexo-page-title-'.uniqid())->getContent(), '404'), '404');
+    pageTitleAssertInner(pageTitleOf(test()->get('/nexo-page-title/'.uniqid())->getContent(), '404'), '404');
 
     expect($checked)->toBeGreaterThan(0);
 });

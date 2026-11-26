@@ -122,9 +122,9 @@ final class NexoChrome
      * The mode is owned by the sso-client template: when
      * App\Services\NexoSso\NexoAuthMode exists (session v2 ported), it decides.
      * Until then this mirrors it exactly — same keys (`nexo-sso.auth_mode`,
-     * `nexo-sso.transition_until`; `nexo.auth_mode` for apps that had it before
-     * v2), local whenever SSO is off, and a transition that turns into sso at
-     * the start of the day after NEXO_AUTH_TRANSITION_UNTIL.
+     * `nexo-sso.transition_until`), local whenever SSO is off, and a transition
+     * that turns into sso at the start of the day after
+     * NEXO_AUTH_TRANSITION_UNTIL. LoginNexoIdFirstTest pins both readings.
      */
     public static function authMode(): string
     {
@@ -139,7 +139,7 @@ final class NexoChrome
             return 'local';
         }
 
-        $mode = strtolower(trim((string) (config('nexo-sso.auth_mode') ?? config('nexo.auth_mode') ?? 'local')));
+        $mode = strtolower(trim((string) config('nexo-sso.auth_mode', 'local')));
 
         if ($mode === 'transition') {
             $cutover = self::cutover();
@@ -163,7 +163,7 @@ final class NexoChrome
             return $cutover instanceof CarbonImmutable ? $cutover : null;
         }
 
-        $until = trim((string) (config('nexo-sso.transition_until') ?? config('nexo.auth_transition_until') ?? ''));
+        $until = trim((string) config('nexo-sso.transition_until', ''));
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $until) !== 1) {
             return null;
         }

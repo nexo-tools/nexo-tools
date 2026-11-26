@@ -37,7 +37,13 @@ return [
         'sitemap.xml',
         'robots.txt',
     ],
-    'silent_excluded_routes' => [],
+    // `fallback` is the 404 of an unmatched URL (the last route of web.php,
+    // chrome v2): browsers fetch missing files with the session cookie, and a
+    // bounce there spent the session's one attempt and overwrote url.intended
+    // with the file's path (HeaderEverywhereTest).
+    'silent_excluded_routes' => [
+        'fallback',
+    ],
 
     // HTTP timeout (seconds) for every provider call — keeps degradation snappy. (AC-DEGRADE-2)
     'timeout' => (int) env('NEXO_SSO_TIMEOUT', 5),
