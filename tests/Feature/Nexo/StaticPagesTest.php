@@ -15,19 +15,25 @@ use Illuminate\Support\Facades\Route;
 // exception in the tool's AGENTS.md.
 //
 // v2 (2026-08-02) also asserts what the error page WEARS: the tool chrome and a
-// noindex. Two tools in the family had drifted into serving errors as a bare
-// document with no header and no footer.
+// noindex. Both were drifting unseen — two tools served errors as a bare
+// document with no header, no footer and no way to change theme, and one of
+// them left the page indexable on top of that.
 //
 // Pest note: toContain() is variadic — a second argument is another needle, not
 // a failure message — so human-readable messages go through toBeTrue()/toBeFalse().
 
 $codes = [403, 404, 419, 429, 500, 503];
 
-// Hosts whose error pages are deliberately chrome-less (the isolated short-link
-// host of nexoshort). This tool has none.
+// Hosts whose error pages are deliberately chrome-less: the isolated short-link
+// host (nxo.li) loads no chrome, tokens or build by design (ADR-001) and is
+// guarded by HostChromeIsolationTest instead. Leave empty in every other tool.
 const ISOLATED_ERROR_HOSTS = [];
 
-/** The URL whose 404 must carry the tool chrome. */
+/**
+ * The URL whose 404 must carry the tool chrome. nexoshort overrides the body
+ * with panelUrl($path): on that tool the default host is the short one, whose
+ * 404 is the isolated shell.
+ */
 function chromeErrorUrl(string $path): string
 {
     return $path;
@@ -74,14 +80,16 @@ it('serves a branded 404 instead of the framework default', function () {
     }
 
     // Chrome, not just branding: an error page that drops the header drops the
-    // theme toggle, the language switcher and the way back with it.
-    expect(str_contains($html, 'nexo-header'))->toBeTrue('The 404 does not render x-nexo-header — use the canonical error-layout.');
+    // theme toggle, the language switcher and the way back with it. Two tools
+    // shipped errors as a bare document with the favicon and the app name.
+    expect(str_contains($html, 'nexo-header'))->toBeTrue('The 404 does not render x-nexo-header — use the canonical error-layout (templates/nexo-ui/pages/error-layout.blade.php).');
     expect(str_contains($html, 'nexo-footer'))->toBeTrue('The 404 does not render x-nexo-footer — use the canonical error-layout.');
 
-    // And it stays out of the index. Asserting the rendered meta (not the
-    // include) also catches a head that quietly ignores the noindex flag.
+    // And it stays out of the index: an error page has no business in search
+    // results. The assertion is on the rendered meta, so a head partial that
+    // quietly ignores the noindex flag is caught too.
     expect(preg_match('/<meta[^>]+name=["\']robots["\'][^>]+noindex/i', $html))
-        ->toBe(1, 'The 404 is missing <meta name="robots" content="noindex">.');
+        ->toBe(1, 'The 404 is missing <meta name="robots" content="noindex"> — pass noindex through partials.head.');
 });
 
 it('serves the legal pages and links them from each other', function () {

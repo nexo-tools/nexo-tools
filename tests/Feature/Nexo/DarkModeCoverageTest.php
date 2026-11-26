@@ -37,15 +37,18 @@ it('paints every view through the token layer, so they work in both themes', fun
 
     // The whole view tree, not a hand-picked list of key pages: the surface that
     // rots in dark mode is always the one nobody thought to put on the list.
-    // No carve-out here: the hub renders no mail templates of its own (password
-    // recovery uses the framework notification). A tool that ships views/emails/
-    // must skip that directory — mail clients strip <style> and know nothing
-    // about CSS variables, so transactional mail is light-only by design.
+    // Mail templates are the one carve-out — clients strip <style> and know
+    // nothing about CSS variables, so transactional mail is light-only by design
+    // (the same reason NoHardcodedColorsTest allows literal hex there).
     $offenders = [];
 
     /** @var SplFileInfo $file */
     foreach (new Walk(new Dir(resource_path('views'), FilesystemIterator::SKIP_DOTS)) as $file) {
         if (! str_ends_with($file->getFilename(), '.blade.php')) {
+            continue;
+        }
+
+        if (str_contains(str_replace('\\', '/', $file->getPathname()), '/views/emails/')) {
             continue;
         }
 
