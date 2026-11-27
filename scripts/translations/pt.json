@@ -134,5 +134,7 @@
     "Your email is verified.": "Seu e-mail foi verificado.",
     "Your name": "Seu nome",
     "Your password changed": "Sua senha mudou",
-    "Your session ended in Nexo ID and in every Nexo tool on this device.": "Sua sessão foi encerrada no Nexo ID e em todas as ferramentas do Nexo neste dispositivo."
+    "Your session ended in Nexo ID and in every Nexo tool on this device.": "Sua sessão foi encerrada no Nexo ID e em todas as ferramentas do Nexo neste dispositivo.",
+    "Signing in with Nexo ID…": "Entrando com o Nexo ID…",
+    "Continue": "Continuar"
 }

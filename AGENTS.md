@@ -147,6 +147,17 @@ The hub ingests pageviews from the tools and alvarocdev via `POST /beacon`. **Of
 
 ## Accumulated context
 
+- **2026-11-26** — **nexo-sso-client v2.3** (after the F3 deploy; copied whole, byte-identical to the
+  template outside the adaptation points). `GET /auth/nexo/enter` answers a guest with a page of this origin that
+  jumps to Nexo ID (`resources/views/nexo-sso/handoff.blade.php`: meta refresh + a «Continuar» link that
+  shows after 3 s and goes back through `enter` with `direct=1`, a plain 302 with a state of its own; no
+  script, no stylesheet; `no-store`) instead of a 302. WebKit mishandled that
+  cross-origin redirect inside «atrás» after «Cerrar sesión»: between different sites it stalled; within
+  one site and with COOP it showed Nexo ID's login under this address and CSP, unstyled — the only red
+  of the F3 production e2e. Only an absolute http(s) authorize URL goes into the page (else the friendly
+  «temporarily unavailable»). New strings «Iniciando sesión con Nexo ID…» and «Continuar» (es, pt).
+  AC-ENTER-7 in the template suite; the template README («v2.3») has the why and
+  `alvaro/inbox/experiencia-unificada/f3/safari-atras/` the reproduction and the verification.
 - **2026-11-26** — **nexo-sso-client v2.2** (experiencia unificada F3, tanda 3). Copied whole from
   `alvaro/templates/nexo-sso-client/` (byte-identical outside `config/nexo-sso.php` — `home` =
   `/app`, `fallback` in the silent exclusions —, `NexoSsoUserResolver::linked()` and the layout of
